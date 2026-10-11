@@ -4,7 +4,7 @@
 #
 # Użycie:
 #   ./build.sh            # wszystkie zestawy
-#   ./build.sh aa01       # tylko wybrany zestaw
+#   ./build.sh aa01       # tylko wybrany zestaw (bez pliku zbiorczego)
 #   ./build.sh --check    # dodatkowo uruchom skrypty z weryfikacja/
 #   ./build.sh --clean    # usuń build/
 set -euo pipefail
@@ -62,6 +62,46 @@ build_one() {
 
 for z in "${ZESTAWY[@]}"; do build_one "$z"; done
 
+# ---------- wszystkie zestawy w jednym pliku ----------
+build_all() {
+  local dir="$OUT/tmp/wszystko" f
+  mkdir -p "$dir"
+  {
+    echo '\documentclass[11pt]{article}'
+    echo '\usepackage{aa}'
+    echo '\begin{document}'
+    echo '\begin{center}{\LARGE\bfseries Analiza algorytmów}\\[0.3em]{\Large Rozwiązania wszystkich zestawów}\end{center}'
+    echo '\tableofcontents'
+    for f in "$ROOT"/zestawy/*/; do
+      f="$(basename "$f")"
+      if [[ -f "$ROOT/zestawy/$f/$f.tex" ]]; then
+        echo "\\wlaczzestaw{$f}{$ROOT/zestawy/$f/$f.tex}"
+      fi
+    done
+    echo '\end{document}'
+  } > "$dir/wszystko.tex"
+
+  echo "==> wszystko (A4)"
+  latexmk -pdf -interaction=nonstopmode -halt-on-error -quiet \
+    -usepretex='\def\WSZYSTKO{}' -outdir="$dir" -cd "$dir/wszystko.tex" >/dev/null \
+    || { tail -40 "$dir/wszystko.log" >&2; return 1; }
+  cp "$dir/wszystko.pdf" "$OUT/wszystko.pdf"
+
+  echo "==> wszystko (telefon)"
+  latexmk -pdf -interaction=nonstopmode -halt-on-error -quiet \
+    -usepretex='\def\WSZYSTKO{}\def\TELEFON{}' -jobname=wszystko-telefon \
+    -outdir="$dir" -cd "$dir/wszystko.tex" >/dev/null \
+    || { tail -40 "$dir/wszystko-telefon.log" >&2; return 1; }
+  cp "$dir/wszystko-telefon.pdf" "$OUT/wszystko-telefon.pdf"
+
+  if [[ $CHECK -eq 1 ]]; then
+    python3 -I "$ROOT/weryfikacja/marginesy.py" "$OUT/wszystko-telefon.pdf"
+    python3 -I "$ROOT/weryfikacja/marginesy.py" "$OUT/wszystko.pdf" 15
+  fi
+}
+# plik zbiorczy tylko przy pełnym buildzie (bez wybranego zestawu)
+if [[ ${#ONLY[@]} -eq 0 ]]; then build_all; fi
+
 # ---------- strona index.html (czytelna na telefonie) ----------
 {
   cat <<'EOF'
@@ -79,6 +119,10 @@ for z in "${ZESTAWY[@]}"; do build_one "$z"; done
 <h1>Analiza algorytmów — rozwiązania zestawów</h1>
 <ul>
 EOF
+  if [[ -f "$OUT/wszystko.pdf" ]]; then
+    echo "<li><b>Wszystkie zestawy w jednym pliku</b><br>"
+    echo "<a href=\"wszystko-telefon.pdf\">📱 Telefon</a><a href=\"wszystko.pdf\">🖨️ A4</a></li>"
+  fi
   for f in $(ls "$ROOT/zestawy" | sort -r); do
     [[ -f "$OUT/$f.pdf" ]] || continue
     num="${f#aa}"

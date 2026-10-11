@@ -14,7 +14,10 @@ Zadanie: rozwiązać go w LaTeX-u w tym samym stylu co poprzednie zestawy.
      wyjaśnione we wcześniejszym zestawie, można się odwołać;
    - `intuicja` (po ludzku, jak do studenta), potem `\formalnie` (pełny dowód),
      na końcu `odpowiedz`;
-   - matematyka w tytułach sekcji przez `\texorpdfstring`.
+   - matematyka w tytułach sekcji przez `\texorpdfstring`;
+   - zestaw trafia też automatycznie do pliku zbiorczego `wszystko.pdf`
+     (`build.sh` → `\wlaczzestaw`); etykiety `\label` są tam prefiksowane
+     nazwą zestawu, więc mogą się powtarzać między zestawami.
 4. Wszystkie wzory zwarte / liczby sprawdź skryptem `weryfikacja/aaNN.py`
    (ułamki `fractions`, porównanie z rekurencją / brute force).
 5. `./build.sh --check aaNN` musi przejść — w tym `marginesy.py` dla wersji

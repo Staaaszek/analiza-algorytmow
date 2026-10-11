@@ -85,12 +85,43 @@
 
 \newcommand{\formalnie}{\par\medskip\noindent\textbf{\textcolor{NavyBlue!70!black}{Rozwiązanie formalne.}}\par}
 
-% Nagłówek dokumentu
+% Nagłówek dokumentu. W pliku zbiorczym (\def\WSZYSTKO{}) zamiast strony
+% tytułowej zestawu wstawiany jest nagłówek części + wpis w spisie treści.
 \newcommand{\zestaw}[2]{%
-  \begin{center}
-    {\LARGE\bfseries Analiza algorytmów}\\[0.3em]
-    {\Large Zestaw #1 --- rozwiązania}\\[0.2em]
-    {\small #2}
-  \end{center}
-  \ifdefined\TELEFON\else\tableofcontents\fi
+  \ifdefined\WSZYSTKO
+    \clearpage\phantomsection
+    \addcontentsline{toc}{part}{Zestaw #1 --- #2}%
+    \begin{center}
+      {\LARGE\bfseries Zestaw #1}\\[0.2em]
+      {\small #2}
+    \end{center}
+  \else
+    \begin{center}
+      {\LARGE\bfseries Analiza algorytmów}\\[0.3em]
+      {\Large Zestaw #1 --- rozwiązania}\\[0.2em]
+      {\small #2}
+    \end{center}
+    \ifdefined\TELEFON\else\tableofcontents\fi
+  \fi
 }
+
+% Plik zbiorczy: \wlaczzestaw{prefiks}{plik.tex} wstawia cały dokument zestawu
+% (docmute pomija jego preambułę), etykiety dostają prefiks zestawu,
+% więc \label{lem:x} w różnych zestawach się nie gryzie.
+\ifdefined\WSZYSTKO
+  \RequirePackage{docmute}
+  \def\aaprefix{}
+  \AtBeginDocument{%
+    \let\aaoldlabel\label
+    \renewcommand{\label}[1]{\aaoldlabel{\aaprefix#1}}%
+    \let\aaoldref\ref
+    \renewcommand{\ref}[1]{\aaoldref{\aaprefix#1}}%
+  }
+  \newcommand{\wlaczzestaw}[2]{%
+    \begingroup
+    \def\aaprefix{#1:}%
+    \setcounter{definicja}{0}%
+    \input{#2}%
+    \endgroup
+  }
+\fi

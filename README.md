@@ -6,6 +6,10 @@ Każdy zestaw jest w dwóch wersjach:
 - **telefon** — wąska strona (11 × 19,5 cm), czyta się bez przybliżania,
 - **A4** — do druku / na komputer, ze spisem treści.
 
+Na stronie jest też **jeden plik ze wszystkimi zestawami** (`wszystko.pdf`,
+`wszystko-telefon.pdf`) — ze wspólnym spisem treści i zakładkami; generuje się
+sam przy każdym pełnym buildzie, nic nie trzeba dopisywać.
+
 W każdym zadaniu: przepisana treść, potrzebne definicje i twierdzenia,
 intuicja, rozwiązanie formalne i odpowiedź.
 
@@ -26,7 +30,7 @@ Wymaga TeX Live (`latexmk`, `pdflatex`, pakiety polskie) i `python3`.
 
 ```bash
 ./build.sh            # wszystkie zestawy -> build/
-./build.sh aa01       # jeden zestaw
+./build.sh aa01       # jeden zestaw (bez pliku zbiorczego)
 ./build.sh --check    # + weryfikacja numeryczna i test marginesów
 ./build.sh --clean
 ```
