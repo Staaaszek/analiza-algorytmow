@@ -1,0 +1,569 @@
+\documentclass[11pt]{article}
+\usepackage{aa}
+
+\begin{document}
+\zestaw{1}{Rekurencje typu „dziel i zwyciężaj”, twierdzenie o rekurencji uniwersalnej, drzewa rekursji}
+
+\begin{teoria}[Jak czytać ten dokument]
+Każde zadanie ma: przepisaną \textbf{treść} (szare pudełko), potrzebną
+\textbf{teorię} (niebieskie), \textbf{intuicję} (żółte), \textbf{rozwiązanie
+formalne} i~\textbf{odpowiedź} (zielone). Wyniki zostały sprawdzone
+numerycznie skryptem \texttt{weryfikacja/aa01.py}. $\lg=\log_2$.
+Definicje $\O,\Omega,\Theta$ i~$\lgs$ --- patrz zestaw~0.
+\end{teoria}
+
+% =====================================================================
+\section{Teoria: rekurencje „dziel i zwyciężaj”}
+
+Algorytm, który problem rozmiaru $n$ dzieli na $a$ podproblemów rozmiaru
+$n/b$, rozwiązuje je rekurencyjnie i~łączy wyniki kosztem $f(n)$, ma czas
+\[
+T(n) = a\,T(n/b) + f(n).
+\]
+
+\begin{definicja}[Drzewo rekursji]
+Rysujemy drzewo: korzeń to wywołanie dla $n$ z~kosztem własnym $f(n)$,
+jego dzieci to wywołania rekurencyjne. Na głębokości $i$ jest $a^i$ węzłów
+o~rozmiarze $n/b^i$, każdy kosztuje $f(n/b^i)$. Drzewo ma
+$\log_b n$ poziomów i~$a^{\log_b n}=n^{\log_b a}$ liści. $T(n)$ to suma
+kosztów wszystkich węzłów:
+\[
+T(n) = \underbrace{\Theta\bigl(n^{\log_b a}\bigr)}_{\text{liście}} + \sum_{i=0}^{\log_b n-1} a^i f(n/b^i).
+\]
+\end{definicja}
+
+\begin{twierdzenie}[O rekurencji uniwersalnej, \emph{Master Theorem}]\label{tw:master}
+Niech $a\ge1$, $b>1$ będą stałymi, $f$ asymptotycznie dodatnia,
+$T(n)=aT(n/b)+f(n)$ (gdzie $n/b$ może oznaczać $\floor{n/b}$ lub $\ceil{n/b}$).
+Oznaczmy $p=\log_b a$ (\emph{wykładnik krytyczny}).
+\begin{enumerate}
+\item Jeśli $f(n)=\O(n^{p-\varepsilon})$ dla pewnego $\varepsilon>0$, to $T(n)=\Theta(n^{p})$.
+\item Jeśli $f(n)=\Theta(n^{p}\lg^k n)$ dla pewnego $k\ge0$, to $T(n)=\Theta(n^{p}\lg^{k+1}n)$.
+   (Podstawowa wersja z~podręcznika Cormena, 3.~wyd., to przypadek $k=0$.)
+\item Jeśli $f(n)=\Omega(n^{p+\varepsilon})$ dla pewnego $\varepsilon>0$ \textbf{oraz} spełniony jest
+\emph{warunek regularności}: $a f(n/b)\le c f(n)$ dla pewnej stałej $c<1$ i~wszystkich dostatecznie
+dużych $n$, to $T(n)=\Theta(f(n))$.
+\end{enumerate}
+\end{twierdzenie}
+
+\begin{intuicja}
+Porównujemy $f(n)$ (koszt w~korzeniu) z~$n^{\log_b a}$ (koszt liści).
+\begin{enumerate}
+\item Liście „ważą” wielomianowo więcej --- koszty poziomów rosną
+geometrycznie w~dół drzewa, dominuje ostatni poziom: $\Theta(n^p)$.
+\item Remis (z~dokładnością do logarytmów) --- każdy z~$\approx\lg n$ poziomów
+kosztuje mniej więcej tyle samo, stąd dodatkowy czynnik $\lg n$.
+\item Korzeń waży wielomianowo więcej --- koszty maleją geometrycznie w~dół,
+dominuje korzeń: $\Theta(f(n))$. Warunek regularności to dokładnie
+„koszt poziomu $i+1$ jest $\le c\,\cdot$ koszt poziomu $i$”.
+\end{enumerate}
+Między przypadkami są \emph{luki}: np.\ $f(n)=n^p/\lg n$ jest mniejsza od $n^p$,
+ale nie wielomianowo --- wtedy twierdzenie nic nie mówi (zad.~3).
+\end{intuicja}
+
+\begin{uwaga}[Podłogi, sufity, potęgi $b$]
+Rachunki prowadzimy zwykle dla $n=b^m$. Jeśli $T$ jest niemalejąca, a~wynik
+$g(n)$ spełnia $g(bn)=\Theta(g(n))$ (tak jest dla funkcji postaci
+$n^\alpha\lg^\beta n$, $n^\alpha\lg\lg n$ itp.), to z~$T(b^m)\le T(n)\le T(b^{m+1})$
+dla $b^m\le n<b^{m+1}$ wynik przenosi się na wszystkie $n$.
+\end{uwaga}
+
+% ---------------------------------------------------------------------
+\section{Zadanie 1. Sortowanie talii kart}
+\begin{tresc}
+Talia składa się z~$2^n$ kart. Sortujemy te karty, rozkładając je rekurencyjnie
+na dwie równe kupki w~następujący sposób:
+\begin{itemize}
+\item jeśli kupka składa się z~jednej karty, to kupka ta jest posortowana;
+\item kupkę zawierającą $2^k$ kart, gdzie $k>0$, dzielimy na dwie kupki
+zawierające po $2^{k-1}$ kart każda. Każdą z~tych mniejszych kupek sortujemy
+oddzielnie, powtarzając rekurencyjnie całą procedurę sortowania. Następnie
+kolejno zbieramy karty ze szczytów obu kupek, zawsze zabierając większą
+z~dwóch górnych kart.
+\end{itemize}
+Oblicz, ile ruchów jest potrzebnych do posortowania wszystkich $2^n$ kart,
+jeśli rozdzielenie $2^k$ kart na dwie kupki wymaga $2^{k-1}$ ruchów, a~złożenie
+dwóch posortowanych kupek o~rozmiarze $2^{k-1}$ kart każda wymaga $2^k$ ruchów.
+\end{tresc}
+
+\begin{intuicja}
+To jest sortowanie przez scalanie (\emph{mergesort}). Drzewo rekursji ma $n$
+poziomów „pracujących” (kupki rozmiaru $2^n,2^{n-1},\dots,2^1$). Na każdym
+poziomie łącznie rozdzielamy wszystkie $2^n$ kart (koszt $2^{n-1}$) i~łącznie
+składamy wszystkie $2^n$ kart (koszt $2^n$). Zatem
+$n\cdot(2^{n-1}+2^n)=3n\cdot2^{n-1}$.
+\end{intuicja}
+\formalnie
+Niech $M_k$ --- liczba ruchów dla $2^k$ kart. Wtedy $M_0=0$ oraz
+\[
+M_k = 2M_{k-1} + 2^{k-1} + 2^k = 2M_{k-1}+3\cdot2^{k-1}\qquad(k\ge1).
+\]
+Dzielimy przez $2^k$ (czynnik sumacyjny, zestaw 0): dla $m_k=M_k/2^k$
+\[
+m_k = m_{k-1}+\tfrac32,\quad m_0=0\ \Longrightarrow\ m_k=\tfrac32k.
+\]
+Stąd $M_k=\frac32k\cdot2^k=3k\cdot2^{k-1}$. Sprawdzenie: $k=1$ --- rozdzielenie
+(1 ruch) i~złożenie (2 ruchy), razem $3=3\cdot1\cdot2^0$ \checkmark.
+\begin{odpowiedz}
+Posortowanie $2^n$ kart wymaga $3n\cdot2^{n-1}$ ruchów (czyli $\frac32N\lg N$ dla $N=2^n$ kart).
+\end{odpowiedz}
+
+% ---------------------------------------------------------------------
+\section{Zadanie 2. Zastosowania twierdzenia o rekurencji uniwersalnej}
+\begin{tresc}
+Korzystając z~twierdzenia o~rekurencji uniwersalnej, podaj dokładne
+oszacowania dla rozwiązań poniższych rekurencji ($T(1)=\Theta(1)$):
+\begin{enumerate}[label=(\alph*)]
+\item $T(n)=8T(n/2)+n^3$,
+\item $T(n)=27T(n/3)+n^2\sqrt n$,
+\item $T(n)=16T(n/4)+n^2\lg^3n$,
+\item $T(n)=9T(n/3)+n^2\sqrt n$.
+\end{enumerate}
+\end{tresc}
+
+\begin{intuicja}
+Schemat: (1)~policz $p=\log_ba$; (2)~porównaj $f(n)$ z~$n^p$;
+(3)~w~przypadku 3 sprawdź warunek regularności.
+\end{intuicja}
+
+\textbf{(a)} $a=8$, $b=2$, $p=\log_28=3$. $f(n)=n^3=\Theta(n^3\lg^0n)$ --- przypadek 2 z~$k=0$.
+\begin{odpowiedz}(a) $T(n)=\Theta(n^3\lg n)$.\end{odpowiedz}
+
+\textbf{(b)} $a=27$, $b=3$, $p=\log_327=3$. $f(n)=n^{2{,}5}=\O(n^{3-1/2})$ --- przypadek 1 z~$\varepsilon=\frac12$.
+\begin{odpowiedz}(b) $T(n)=\Theta(n^3)$.\end{odpowiedz}
+
+\textbf{(c)} $a=16$, $b=4$, $p=\log_416=2$. $f(n)=n^2\lg^3n=\Theta(n^p\lg^3 n)$ ---
+przypadek 2 w~wersji rozszerzonej, $k=3$.
+
+\emph{Sprawdzenie drzewem rekursji} (gdyby na wykładzie była tylko wersja
+z~$k=0$): dla $n=4^m$ na poziomie $i$ jest $16^i$ węzłów rozmiaru $n/4^i$, więc
+koszt poziomu to
+\[
+16^i\Bigl(\frac{n}{4^i}\Bigr)^2\lg^3\frac{n}{4^i} = n^2\bigl(2(m-i)\bigr)^3 = 8n^2(m-i)^3,
+\]
+a suma po $i=0,\dots,m-1$ to $8n^2\sum_{j=1}^m j^3 = 8n^2\frac{m^2(m+1)^2}{4}=\Theta(n^2m^4)$.
+Liście dają $16^m\Theta(1)=\Theta(n^2)$. Ponieważ $m=\frac12\lg n$, wynik to $\Theta(n^2\lg^4n)$.
+\begin{odpowiedz}(c) $T(n)=\Theta(n^2\lg^4n)$.\end{odpowiedz}
+
+\textbf{(d)} $a=9$, $b=3$, $p=\log_39=2$. $f(n)=n^{2{,}5}=\Omega(n^{2+1/2})$ --- kandydat na przypadek 3.
+Warunek regularności:
+\[
+a f(n/b) = 9\Bigl(\frac n3\Bigr)^{5/2} = \frac{9}{3^{5/2}}\,n^{5/2} = \frac{1}{\sqrt3}\,f(n),
+\]
+więc zachodzi z~$c=\frac1{\sqrt3}<1$.
+\begin{odpowiedz}(d) $T(n)=\Theta(n^2\sqrt n)$.\end{odpowiedz}
+
+% ---------------------------------------------------------------------
+\section{Zadanie 3. Rekurencja w luce twierdzenia}
+\begin{tresc}
+Dlaczego twierdzenia o~rekurencji uniwersalnej nie można zastosować do równania
+$T(n)=9T\bigl(\frac n3\bigr)+\frac{n^2}{\lg n}$? Oszacuj $T(n)$ z~dokładnością do $\Theta$.
+\end{tresc}
+
+\textbf{Dlaczego nie można.} $p=\log_39=2$, $f(n)=n^2/\lg n$.
+\begin{itemize}
+\item Przypadek 1 wymaga $f(n)=\O(n^{2-\varepsilon})$, ale
+$\frac{f(n)}{n^{2-\varepsilon}}=\frac{n^\varepsilon}{\lg n}\to\infty$ dla każdego $\varepsilon>0$.
+\item Przypadek 2 wymaga $f(n)=\Theta(n^2\lg^kn)$ z~$k\ge0$, a~tu „$k=-1$”.
+\item Przypadek 3 wymaga $f(n)=\Omega(n^{2+\varepsilon})$, a~$f(n)<n^2$.
+\end{itemize}
+$f$ jest mniejsza od $n^p$, ale tylko o~czynnik logarytmiczny, a~nie
+wielomianowy --- wpada w~lukę między przypadkiem 1 i~2.
+
+\begin{intuicja}
+Drzewo rekursji: na poziomie $i$ jest $9^i$ węzłów rozmiaru $n/3^i$. Czynnik
+$9^i$ i~$(1/3^i)^2$ się znoszą, więc każdy poziom kosztuje $n^2/\lg(\text{rozmiar})$.
+Rozmiar maleje w~dół drzewa, więc koszty poziomów to $\frac{n^2}{m},
+\frac{n^2}{m-1},\dots,\frac{n^2}{1}$ (z dokładnością do stałej) --- suma to
+$n^2H_m\approx n^2\ln m$, a $m\approx\lg n$. Dostajemy $n^2\lg\lg n$.
+\end{intuicja}
+\formalnie
+Niech $n=3^m$ i~$S(m)=T(3^m)/9^m$. Dzieląc rekurencję przez $9^m$
+i~korzystając z~$\lg 3^m=m\lg3$:
+\[
+S(m)=S(m-1)+\frac{1}{m\lg3}\ \Longrightarrow\ S(m)=S(0)+\frac{H_m}{\lg 3}.
+\]
+Zatem $T(3^m)=9^m\bigl(T(1)+H_m/\lg3\bigr) = n^2\bigl(\Theta(1)+\Theta(\lg m)\bigr)$
+(zestaw 0, zad.~6: $H_m=\Theta(\ln m)$). Ponieważ $m=\log_3n$, mamy
+$\lg m=\lg\lg n-\lg\lg3=\Theta(\lg\lg n)$. Przejście do dowolnych $n$ ---
+uwaga o~podłogach i~sufitach.
+\begin{odpowiedz}
+Twierdzenie nie działa, bo $n^2/\lg n$ jest mniejsza od $n^{\log_39}=n^2$ tylko
+o~czynnik logarytmiczny. Rozwiązanie: $T(n)=\Theta(n^2\lg\lg n)$.
+\end{odpowiedz}
+
+% ---------------------------------------------------------------------
+\section{Zadanie 4. \texorpdfstring{$T(n)=T(n-a)+T(a)+cn$}{T(n) = T(n-a) + T(a) + cn}}
+\begin{tresc}
+Wykorzystując drzewo rekursji, rozwiąż z~dokładnością do $\Theta$ równanie
+$T(n)=T(n-a)+T(a)+cn$ dla zadanych stałych $a\ge1$ i~$c>0$.
+\end{tresc}
+
+\begin{intuicja}
+To jest np.\ Quicksort, w~którym pivot za każdym razem odcina tylko stały
+kawałek $a$ elementów --- przypadek pesymistyczny. Drzewo jest „gąsienicą”:
+głęboka na $\approx n/a$ poziomów, na każdym jeden węzeł kosztujący
+$c\cdot(\text{rozmiar})$ i~jeden stały liść $T(a)$. Rozmiary to
+$n,n-a,n-2a,\dots$ --- suma ciągu arytmetycznego, czyli $\approx\frac{cn^2}{2a}$.
+\end{intuicja}
+
+\begin{center}
+\begin{tikzpicture}[level distance=9mm,
+  level 1/.style={sibling distance=22mm},
+  every node/.style={font=\small}]
+\node {$cn$}
+  child {node {$c(n-a)$}
+    child {node {$c(n-2a)$}
+      child {node {$\vdots$} edge from parent[draw=none]}
+      child {node {$T(a)$}}}
+    child {node {$T(a)$}}}
+  child {node {$T(a)$}};
+\end{tikzpicture}
+\end{center}
+
+\formalnie
+Zakładamy, że $T(m)$ dla $0<m\le a$ to stałe (warunek brzegowy), a~rekurencja
+działa dla $n>a$. Zapiszmy $n=qa+r$, gdzie $0<r\le a$ ($q\ge0$). Rozwijając
+rekurencję $q$ razy (każde rozwinięcie zmniejsza argument o~$a$):
+\[
+T(n)=\sum_{i=0}^{q-1}\bigl(c(n-ia)+T(a)\bigr)+T(r).
+\]
+Ponieważ $n-ia=r+(q-i)a$, mamy $\sum_{i=0}^{q-1}(n-ia)=qr+a\sum_{j=1}^qj=qr+\frac{aq(q+1)}{2}$, więc
+\[
+T(n)=c\Bigl(qr+\frac{a\,q(q+1)}{2}\Bigr)+q\,T(a)+T(r).
+\]
+Przy $q=\ceil{n/a}-1=\Theta(n)$ (bo $a$ to stała) dominuje składnik
+$\frac{ca}{2}q^2=\Theta(n^2)$; pozostałe są $\O(n)$.
+\begin{odpowiedz}$T(n)=\Theta(n^2)$, dokładniej $T(n)=\frac{c}{2a}n^2+\O(n)$.\end{odpowiedz}
+
+% ---------------------------------------------------------------------
+\section{Zadanie 5. \texorpdfstring{$T(n)=T(\alpha n)+T((1-\alpha)n)+cn$}{T(n) = T(an) + T((1-a)n) + cn}}
+\begin{tresc}
+Wykorzystując drzewo rekursji, rozwiąż z~dokładnością do $\Theta$ równanie
+$T(n)=T(\alpha n)+T((1-\alpha)n)+cn$ dla zadanych stałych $\alpha\in(0,1)$ i~$c>0$.
+\end{tresc}
+
+\begin{intuicja}
+Dzielimy nierówno, ale \emph{proporcjonalnie} (np.\ Quicksort, który zawsze
+dzieli w~stosunku 1:9). Rozmiary dzieci sumują się do rozmiaru rodzica, więc
+każdy pełny poziom drzewa kosztuje dokładnie $cn$. Gałęzie kończą się na
+różnych głębokościach, ale wszystkie między $\log_{1/\beta}n$
+a~$\log_{1/\gamma}n$ --- obie te liczby to $\Theta(\lg n)$. Zatem
+$\Theta(\lg n)$ poziomów po $\le cn$: $\Theta(n\lg n)$. Nierówny podział
+zmienia tylko stałą.
+\end{intuicja}
+
+\begin{center}
+\begin{tikzpicture}[level distance=10mm,
+  level 1/.style={sibling distance=40mm},
+  level 2/.style={sibling distance=20mm},
+  every node/.style={font=\small}]
+\node (r) {$cn$}
+  child {node {$c\alpha n$}
+    child {node {$c\alpha^2n$}}
+    child {node {$c\alpha(1{-}\alpha)n$}}}
+  child {node {$c(1{-}\alpha)n$}
+    child {node {$c\alpha(1{-}\alpha)n$}}
+    child {node {$c(1{-}\alpha)^2n$}}};
+\end{tikzpicture}\\
+{\small Każdy pełny poziom sumuje się do $cn$.}
+\end{center}
+
+\formalnie
+Niech $\beta=\min(\alpha,1-\alpha)$, $\gamma=\max(\alpha,1-\alpha)$; oba w~$(0,1)$.
+Przyjmujemy $T(m)=\Theta(1)$ (między stałymi $d_1,d_2>0$) dla $m\le1$
+i~rekurencję dla $m>1$. Węzeł na głębokości $i$ ma rozmiar
+$\alpha^{j}(1-\alpha)^{i-j}n\in[\beta^in,\gamma^in]$.
+
+\emph{Dolne oszacowanie.} Dopóki $\beta^in>1$, czyli dla $i<\log_{1/\beta}n$,
+żaden węzeł na głębokości $i$ nie jest liściem, więc poziom $i$ jest pełny
+i~kosztuje $cn$ (rozmiary na poziomie sumują się do $n$). Zatem
+$T(n)\ge cn\floor{\log_{1/\beta}n}=\Omega(n\lg n)$.
+
+\emph{Górne oszacowanie.} Na głębokości $i>\log_{1/\gamma}n$ wszystkie
+rozmiary są $<1$, więc drzewo ma $\le\log_{1/\gamma}n+2$ poziomów. Każdy poziom
+(także niepełny) kosztuje $\le cn$ w~węzłach wewnętrznych. Liście mają
+rozmiar $>\beta$ (ich rodzic miał rozmiar $>1$), a~rozmiary liści sumują się
+do $n$, więc liści jest $<n/\beta$ i~kosztują $\O(n)$. Razem
+$T(n)\le cn(\log_{1/\gamma}n+2)+d_2n/\beta=\O(n\lg n)$.
+
+\emph{Sprawdzenie metodą podstawiania} (daje też stałą). Niech
+$h(\alpha)=-\alpha\lg\alpha-(1-\alpha)\lg(1-\alpha)>0$ (entropia binarna).
+Przypuśćmy $T(m)\le Km\lg m$ dla mniejszych argumentów. Wtedy
+\begin{align*}
+T(n)&\le K\alpha n\lg(\alpha n)+K(1-\alpha)n\lg((1-\alpha)n)+cn\\
+&=Kn\lg n-Kn\,h(\alpha)+cn\ \le\ Kn\lg n,
+\end{align*}
+o ile $K\ge c/h(\alpha)$ (z~odpowiednio dobranym warunkiem brzegowym).
+\begin{odpowiedz}$T(n)=\Theta(n\lg n)$ (asymptotycznie $T(n)\sim\frac{c}{h(\alpha)}\,n\lg n$).\end{odpowiedz}
+
+% ---------------------------------------------------------------------
+\section{Zadanie 6. Suma współczynników mniejsza od 1}
+\begin{tresc}
+Wykaż, że rozwiązanie równania rekurencyjnego
+\[
+T(n)=\sum_{i=1}^kT(a_in)+n,
+\]
+gdzie $a_i>0$ dla $i=1,\dots,k$ oraz $\sum_{i=1}^ka_i<1$,
+jest postaci $T(n)=\Theta(n)$.
+\end{tresc}
+
+\begin{intuicja}
+Niech $s=\sum a_i<1$. W~drzewie rekursji suma rozmiarów na poziomie $i$ to
+$s^in$ (każdy węzeł rozmiaru $m$ ma dzieci o~łącznym rozmiarze $sm$). Koszty
+poziomów tworzą ciąg geometryczny malejący: $n+sn+s^2n+\dots\le\frac{n}{1-s}$.
+Już sam korzeń kosztuje $n$, więc $T(n)=\Theta(n)$.
+\end{intuicja}
+\formalnie
+Doprecyzujmy model: $T(n)\in[0,B]$ dla $0<n<n_0$ (warunek brzegowy, $n_0\ge1$
+stała), a~dla $n\ge n_0$ obowiązuje rekurencja. Niech $s=\sum a_i<1$,
+$\bar a=\max a_i<1$.
+
+\emph{Dolne.} Dla $n\ge n_0$: $T(n)\ge n$, bo $T\ge0$. Zatem $T(n)=\Omega(n)$.
+
+\emph{Górne.} Pokażemy $T(n)\le Kn+B$ dla
+$K=\frac{1+(k-1)B}{1-s}$ i~wszystkich $n>0$. Indukcja po $j$: teza $P_j$ ---
+nierówność zachodzi dla $n<n_0/\bar a^{\,j}$.
+$P_0$: dla $n<n_0$ mamy $T(n)\le B$ \checkmark. $P_j\Rightarrow P_{j+1}$: dla
+$n_0\le n<n_0/\bar a^{\,j+1}$ wszystkie $a_in<n_0/\bar a^{\,j}$, więc
+\[
+T(n)\le\sum_{i=1}^k(Ka_in+B)+n = Ksn+kB+n.
+\]
+Chcemy $Ksn+kB+n\le Kn+B$, tj.\ $n\bigl(K(1-s)-1\bigr)\ge(k-1)B$. Z~wyboru $K$
+lewa strona to $n(k-1)B\ge(k-1)B$, bo $n\ge n_0\ge1$ \checkmark.
+Każde $n$ jest objęte pewnym $P_j$, więc $T(n)\le Kn+B=\O(n)$.
+\begin{odpowiedz}$n\le T(n)\le\frac{1+(k-1)B}{1-\sum a_i}\,n+B$, czyli $T(n)=\Theta(n)$.\end{odpowiedz}
+
+\begin{uwaga}
+Gdy $\sum a_i=1$ (jak w~zad.~5), poziomy kosztują po tyle samo i~wychodzi
+$\Theta(n\lg n)$; gdy $\sum a_i>1$ --- dominują liście i~wynik jest
+wielomianowo większy od $n$.
+\end{uwaga}
+
+% ---------------------------------------------------------------------
+\section{Zadanie 7. Rekurencje z sufitami}
+\begin{tresc}
+Rozwiąż z~dokładnością do $\Theta$ równania:
+\begin{enumerate}[label=(\alph*)]
+\item $T(n)=T(\ceil{n/5})+T(\ceil{7n/10})+\Theta(n)$,
+\item $T(n)=T(\ceil{n/5})+T(\ceil{3n/4})+\Theta(n)$.
+\end{enumerate}
+\end{tresc}
+
+\begin{intuicja}
+(a) to rekurencja algorytmu \textbf{magicznych piątek} (wybór $k$-tego
+elementu w~czasie liniowym, \emph{median of medians}): rekurencja na
+$n/5$ medianach grup i~na co najwyżej $\approx7n/10$ elementach. Ponieważ
+$\frac15+\frac7{10}=\frac9{10}<1$, z~zadania 6 spodziewamy się $\Theta(n)$.
+W~(b) $\frac15+\frac34=\frac{19}{20}<1$ --- też $\Theta(n)$. Jedyna nowość to
+sufity: $\ceil{x}\le x+1$, czyli każdy sufit dokłada stałą, którą
+„połykamy”, biorąc $n$ dostatecznie duże.
+\end{intuicja}
+\formalnie
+Niech składnik $\Theta(n)$ to $g(n)$ z~$c_1n\le g(n)\le c_2n$, a~$T(n)>0$
+dla małych $n$ (warunek brzegowy).
+
+\emph{Dolne} (oba przypadki): $T(n)\ge g(n)\ge c_1n$.
+
+\emph{Górne (a).} Pokażemy $T(n)\le Kn$ dla $n\ge1$, gdzie
+$K=\max\bigl(20c_2,\ \max_{n<40}T(n)/n\bigr)$. Dla $n<40$ z~wyboru $K$.
+Dla $n\ge40$ argumenty $\ceil{n/5},\ceil{7n/10}$ są mniejsze od $n$, więc
+z~założenia indukcyjnego i~$\ceil x\le x+1$:
+\begin{align*}
+T(n)&\le K\Bigl(\frac n5+1\Bigr)+K\Bigl(\frac{7n}{10}+1\Bigr)+c_2n\\
+&=Kn-\Bigl(\frac{Kn}{10}-c_2n-2K\Bigr).
+\end{align*}
+Ponieważ $K\ge20c_2$, mamy $\frac{Kn}{10}-c_2n\ge\frac{Kn}{20}\ge2K$ dla $n\ge40$, więc nawias
+jest $\ge0$ i~$T(n)\le Kn$ \checkmark.
+
+\emph{Górne (b).} Identycznie z~$K=\max\bigl(40c_2,\max_{n<80}T(n)/n\bigr)$:
+\[
+T(n)\le K\Bigl(\frac n5+1\Bigr)+K\Bigl(\frac{3n}4+1\Bigr)+c_2n=Kn-\Bigl(\frac{Kn}{20}-c_2n-2K\Bigr),
+\]
+a $\frac{Kn}{20}-c_2n\ge\frac{Kn}{40}\ge2K$ dla $n\ge80$.
+\begin{odpowiedz}(a) $T(n)=\Theta(n)$;\quad (b) $T(n)=\Theta(n)$.\end{odpowiedz}
+
+% ---------------------------------------------------------------------
+\section{Zadanie 8. \texorpdfstring{$T(n)=T(\ceil{\log n})+1/\log^*n$}{T(n) = T(ceil(log n)) + 1/log* n}}
+\begin{tresc}
+Rozwiąż z~dokładnością do $\Theta$ równanie
+$T(n)=T(\ceil{\log n})+\dfrac{1}{\log^*n}$, $T(n)=0$ $(n\le2)$.
+\end{tresc}
+Przyjmujemy $\log=\lg$ (dla innej stałej podstawy wynik jest taki sam).
+
+\begin{teoria}[Wieże potęg]
+$\mathrm{tow}(0)=1$, $\mathrm{tow}(k)=2^{\mathrm{tow}(k-1)}$: $1,2,4,16,65536,\dots$
+Z~definicji $\lgs$ (zestaw 0): $\lgs x=k\iff \mathrm{tow}(k-1)<x\le\mathrm{tow}(k)$ dla $k\ge1$.
+\end{teoria}
+
+\begin{intuicja}
+Każde wywołanie logarytmuje argument, więc wywołań jest ok.\ $\lgs n$.
+W~wywołaniu numer $i$ (licząc od $0$) argument ma $\lgs$ równe $\lgs n-i$,
+więc dodajemy $\frac{1}{\lgs n},\frac1{\lgs n-1},\dots,\frac12$ --- to jest
+liczba harmoniczna! $T(n)\approx H_{\lgs n}\approx\ln\lgs n$.
+\end{intuicja}
+
+\begin{lemat}
+Dla całkowitego $m>1$: $\lgs\ceil{\lg m}=\lgs m-1$.
+\end{lemat}
+\begin{proof}
+Niech $k=\lgs m\ge1$, czyli $\mathrm{tow}(k-1)<m\le\mathrm{tow}(k)$. Logarytmując:
+$\mathrm{tow}(k-2)<\lg m\le\mathrm{tow}(k-1)$ (dla $k=1$ czytamy lewą stronę jako
+$\lg m>0$). Ponieważ $\mathrm{tow}(k-1)$ jest całkowite, także
+$\ceil{\lg m}\le\mathrm{tow}(k-1)$, a $\ceil{\lg m}\ge\lg m$. Zatem $\ceil{\lg m}$
+leży w~tym samym przedziale co $\lg m$, czyli $\lgs\ceil{\lg m}=\lgs(\lg m)=k-1$
+(dla $k=1$: $m=2$, $\ceil{\lg2}=1$, $\lgs1=0$ \checkmark).
+\end{proof}
+
+\formalnie
+Niech $n\ge3$, $L=\lgs n\ge2$ i~$n_0=n$, $n_{i+1}=\ceil{\lg n_i}$. Z~lematu
+$\lgs n_i=L-i$. Rekurencja zatrzymuje się przy pierwszym $n_t\le2$, tzn.\
+$\lgs n_t\le1$, czyli przy $t=L-1$. Zatem
+\[
+T(n)=\sum_{i=0}^{L-2}\frac{1}{\lgs n_i}=\sum_{i=0}^{L-2}\frac{1}{L-i}=\sum_{j=2}^{L}\frac1j=H_{L}-1.
+\]
+Z~zad.~6 zestawu 0: $\ln L<H_L<\ln L+1$, więc $T(n)=\Theta(\lg L)$.
+Sprawdzenie: $T(3)=T(2)+\frac{1}{\lgs3}=\frac12=H_2-1$ \checkmark.
+\begin{odpowiedz}$T(n)=H_{\lgs n}-1=\Theta(\lg\lgs n)$ dla $n\ge3$.\end{odpowiedz}
+
+% ---------------------------------------------------------------------
+\section{Zadanie 9. Warunek regularności}
+\begin{tresc}
+Pokaż, że warunek regularności (w~twierdzeniu o~rekurencji uniwersalnej)
+$af(n/b)\le cf(n)$ dla pewnej stałej $c<1$ implikuje, że istnieje stała
+$\varepsilon>0$, taka że $f(n)=\Omega(n^{\log_ba+\varepsilon})$.
+\end{tresc}
+
+\begin{intuicja}
+Warunek mówi: $f(n)\ge\frac ac f(n/b)$ --- gdy argument rośnie $b$ razy,
+wartość rośnie co najmniej $\frac ac$ razy. Funkcja $n^{p}$ rośnie dokładnie
+$b^p$ razy. Zatem $f$ zachowuje się co najmniej jak $n^{q}$ z~$b^q=\frac ac$,
+tj.\ $q=\log_b\frac ac=\log_ba+\log_b\frac1c$. Ponieważ $c<1$, nadwyżka
+$\varepsilon=\log_b\frac1c$ jest dodatnia. Dlatego w~przypadku 3 warunek
+regularności „zawiera” założenie $f=\Omega(n^{p+\varepsilon})$.
+\end{intuicja}
+\formalnie
+Założenia: $a\ge1$, $b>1$, $0<c<1$; nierówność $af(n/b)\le cf(n)$ zachodzi dla
+wszystkich $n\ge n_0$ (z~$n_0\ge b$), a~$f$ jest dodatnia i~ograniczona z~dołu
+przez $\delta>0$ na przedziale $[n_0,bn_0)$ (tak jest np.\ dla $f$ niemalejącej
+lub ciągłej i~dodatniej --- „rozsądne” $f$ z~analizy algorytmów).
+
+Niech $n\ge n_0$. Istnieją jednoznacznie $j\ge0$ i~$x\in[n_0,bn_0)$ takie, że
+$n=b^jx$. Stosując warunek $j$ razy w~punktach $b^jx,b^{j-1}x,\dots,bx$ (wszystkie
+$\ge n_0$):
+\begin{align*}
+f(n)&\ge \frac ac\,f\Bigl(\frac nb\Bigr)\ \ge\ \Bigl(\frac ac\Bigr)^2f\Bigl(\frac n{b^2}\Bigr)\ \ge\ \dots\\
+&\ge \Bigl(\frac ac\Bigr)^jf(x)\ \ge\ \Bigl(\frac ac\Bigr)^j\delta.
+\end{align*}
+Niech $\varepsilon=\log_b\frac1c>0$. Wtedy $\frac ac=b^{\log_ba+\varepsilon}$, więc
+\[
+\Bigl(\frac ac\Bigr)^j=\bigl(b^j\bigr)^{\log_ba+\varepsilon}=\Bigl(\frac nx\Bigr)^{\log_ba+\varepsilon}
+\ge\Bigl(\frac{n}{bn_0}\Bigr)^{\log_ba+\varepsilon}.
+\]
+Zatem $f(n)\ge\delta(bn_0)^{-(\log_ba+\varepsilon)}\cdot n^{\log_ba+\varepsilon}$
+dla $n\ge n_0$, czyli $f(n)=\Omega(n^{\log_ba+\varepsilon})$.\qed
+
+\begin{uwaga}[Implikacja odwrotna nie zachodzi]
+Dla $a=1$, $b=2$ weźmy $f(n)=4^{\ceil{\log_4n}}$. Mamy $n\le f(n)<4n$, więc
+$f(n)=\Omega(n^{0+1})$. Ale dla $n=4^k$: $f(n/2)=4^{\ceil{k-1/2}}=4^k=f(n)$,
+więc $af(n/2)\le cf(n)$ z~$c<1$ nie zachodzi dla nieskończenie wielu $n$.
+\end{uwaga}
+\begin{odpowiedz}
+Z~regularności $f(n)=\Omega\bigl(n^{\log_ba+\varepsilon}\bigr)$ dla $\varepsilon=\log_b(1/c)>0$.
+\end{odpowiedz}
+
+% ---------------------------------------------------------------------
+\section{Zadanie 10. Maksymalna suma spójnego fragmentu}
+\begin{tresc}
+Zaproponuj algorytm „dziel i zwyciężaj”, który dla zadanej tablicy $A$
+o~rozmiarze $n$ zawierającej liczby całkowite znajduje indeksy $i$ oraz $j$
+maksymalizujące sumę $A[i]+A[i+1]+A[i+2]+\ldots+A[j]$.
+Wykaż poprawność tego algorytmu i~przeanalizuj liczbę wykonywanych przez niego porównań.
+\end{tresc}
+
+\begin{intuicja}
+Przetnij tablicę na pół. Najlepszy fragment albo leży całkowicie w~lewej
+połowie, albo całkowicie w~prawej, albo \emph{przecina środek}. Dwa pierwsze
+przypadki załatwia rekurencja. Fragment przecinający środek to „jakiś
+sufiks lewej połowy” + „jakiś prefiks prawej połowy”, a~te dwie części
+wybieramy \emph{niezależnie}: najlepszy sufiks (idąc od środka w~lewo)
+i~najlepszy prefiks (od środka w~prawo). To jest liniowe. Daje to
+$T(n)=2T(n/2)+\Theta(n)=\Theta(n\lg n)$, jak mergesort.
+\end{intuicja}
+
+Zakładamy, że szukamy fragmentu niepustego ($i\le j$); indeksujemy $1..n$,
+$S(i,j)=\sum_{t=i}^jA[t]$.
+
+\begin{algorithm}[H]
+\caption{\textsc{MaxFrag}$(A,l,r)$ --- zwraca $(i,j,S(i,j))$ maksymalne dla $l\le i\le j\le r$}
+\begin{algorithmic}[1]
+\If{$l=r$} \Return $(l,l,A[l])$ \EndIf
+\State $m\gets\floor{(l+r)/2}$
+\State $L\gets$ \Call{MaxFrag}{$A,l,m$};\quad $R\gets$ \Call{MaxFrag}{$A,m+1,r$}
+\Statex \(\triangleright\) najlepszy sufiks lewej połowy $A[i..m]$
+\State $s\gets A[m]$;\ $\mathit{best}_L\gets s$;\ $i\gets m$
+\For{$t\gets m-1$ \textbf{w dół do} $l$}
+  \State $s\gets s+A[t]$
+  \If{$s>\mathit{best}_L$} $\mathit{best}_L\gets s$;\ $i\gets t$ \EndIf
+\EndFor
+\Statex \(\triangleright\) najlepszy prefiks prawej połowy $A[m{+}1..j]$
+\State $s\gets A[m+1]$;\ $\mathit{best}_R\gets s$;\ $j\gets m+1$
+\For{$t\gets m+2$ \textbf{do} $r$}
+  \State $s\gets s+A[t]$
+  \If{$s>\mathit{best}_R$} $\mathit{best}_R\gets s$;\ $j\gets t$ \EndIf
+\EndFor
+\State $X\gets(i,j,\mathit{best}_L+\mathit{best}_R)$
+\State \Return ten z~$L,R,X$, który ma największą sumę (2~porównania)
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Poprawność.} Indukcja po długości $r-l+1$. Dla jednego elementu
+jedyny fragment to $[l,l]$ \checkmark. Dla $l<r$ każdy fragment $[i',j']$
+spełnia dokładnie jeden z~warunków:
+\begin{enumerate}
+\item $j'\le m$ --- wtedy $S(i',j')\le$ suma w~$L$ (zał.\ indukcyjne);
+\item $i'\ge m+1$ --- wtedy $S(i',j')\le$ suma w~$R$;
+\item $i'\le m<j'$ --- wtedy $S(i',j')=S(i',m)+S(m+1,j')$. Pętle przeglądają
+\emph{wszystkie} $i'\in[l,m]$ i~\emph{wszystkie} $j'\in[m+1,r]$, więc
+$\mathit{best}_L=\max_{i'}S(i',m)$, $\mathit{best}_R=\max_{j'}S(m+1,j')$.
+Ponieważ oba składniki są niezależne,
+$\max_{i',j'}\bigl(S(i',m)+S(m+1,j')\bigr)=\mathit{best}_L+\mathit{best}_R$,
+czyli $S(i',j')\le$ suma w~$X$.
+\end{enumerate}
+Zwracamy maksimum z~$L,R,X$; każdy z~nich jest prawdziwym fragmentem
+$[l,r]$, a~każdy fragment ma sumę $\le$ jednego z~nich --- więc wynik jest
+optymalny.\qed
+
+\textbf{Liczba porównań.} Liczymy porównania sum (instrukcje \textbf{if} i~wybór
+maksimum). Lewa połowa ma $\ceil{n/2}$ elementów: pętla to $\ceil{n/2}-1$
+porównań; prawa: $\floor{n/2}-1$; wybór maksimum z~trzech: 2. Razem
+$n$ porównań poza rekurencją:
+\[
+P(1)=0,\qquad P(n)=P(\ceil{n/2})+P(\floor{n/2})+n\quad(n\ge2).
+\]
+To prawie rekurencja z~zad.~9 zestawu 0 ($C_n$ z~„$+n-1$”). Niech $Q(n)=P(n)-(n-1)$:
+\[
+Q(n)=Q(\ceil{n/2})+Q(\floor{n/2})+n-1,\quad Q(1)=0,
+\]
+bo $P(n)-(n-1)=Q(\ceil{n/2})+\bigl(\ceil{n/2}-1\bigr)+Q(\floor{n/2})+\bigl(\floor{n/2}-1\bigr)+n-(n-1)$,
+a~wyrazy wolne sumują się do $n-2+1=n-1$. Zatem $Q(n)=C_n=n\ceil{\lg n}+1-2^{\ceil{\lg n}}$ i
+\[
+P(n)=n\ceil{\lg n}+n-2^{\ceil{\lg n}}.
+\]
+Dla $n=2^k$: $P(n)=nk=n\lg n$. (Wzór sprawdzony programem dla $n\le120$.)
+\begin{odpowiedz}
+Algorytm wykonuje $P(n)=n\ceil{\lg n}+n-2^{\ceil{\lg n}}=\Theta(n\lg n)$ porównań
+(dokładnie $n\lg n$ dla $n$ będącego potęgą dwójki).
+\end{odpowiedz}
+
+\begin{uwaga}
+Problem da się rozwiązać w~czasie $\Theta(n)$ algorytmem Kadane
+(programowanie dynamiczne): jeśli $E_t$ to największa suma fragmentu
+kończącego się na pozycji $t$, to $E_t=\max(A[t],\,E_{t-1}+A[t])$, a~wynik
+to $\max_tE_t$. Również
+dziel i~zwyciężaj można przyspieszyć do $\Theta(n)$, jeśli rekurencja
+zwraca dodatkowo sumę całości, najlepszy prefiks i~najlepszy sufiks
+--- wtedy krok łączenia jest stały: $T(n)=2T(n/2)+\Theta(1)$.
+\end{uwaga}
+
+\end{document}
