@@ -105,3 +105,18 @@ for n in range(1, 120):
         k = (n - 1).bit_length()
         assert cnt[0] == n * k + n - 2**k, (n, cnt[0])
 print("ok  zad10")
+
+
+# Master theorem, przypadek 2 dla k > -1, k = -1, k < -1:
+# T(2^m) = 2 T(2^(m-1)) + 2^m * m^k  =>  T(2^m)/2^m = T(1) + sum_{j<=m} j^k
+def master_ratio(m, k):
+    t = 1.0
+    for j in range(1, m + 1):
+        t = 2 * t + 2**j * j**k
+    return t / 2**m
+
+
+for k, g in [(1, lambda m: m**2), (0.5, lambda m: m**1.5), (-1, lambda m: math.log(m)), (-2, lambda m: 1)]:
+    r = [master_ratio(m, k) / g(m) for m in (200, 400, 800)]
+    assert max(r) / min(r) < 1.3, (k, r)  # iloraz ustabilizowany => Theta(g)
+print("ok  master k>-1, k=-1, k<-1")

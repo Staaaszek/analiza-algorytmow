@@ -38,8 +38,14 @@ $T(n)=aT(n/b)+f(n)$ (gdzie $n/b$ może oznaczać $\floor{n/b}$ lub $\ceil{n/b}$)
 Oznaczmy $p=\log_b a$ (\emph{wykładnik krytyczny}).
 \begin{enumerate}
 \item Jeśli $f(n)=\O(n^{p-\varepsilon})$ dla pewnego $\varepsilon>0$, to $T(n)=\Theta(n^{p})$.
-\item Jeśli $f(n)=\Theta(n^{p}\lg^k n)$ dla pewnego $k\ge0$, to $T(n)=\Theta(n^{p}\lg^{k+1}n)$.
-   (Podstawowa wersja z~podręcznika Cormena, 3.~wyd., to przypadek $k=0$.)
+\item Jeśli $f(n)=\Theta(n^{p}\lg^k n)$ dla pewnej stałej $k\in\R$, to
+\begin{enumerate}[label=(\alph*)]
+\item dla $k>-1$:\quad $T(n)=\Theta(n^{p}\lg^{k+1}n)$;
+\item dla $k=-1$:\quad $T(n)=\Theta(n^{p}\lg\lg n)$;
+\item dla $k<-1$:\quad $T(n)=\Theta(n^{p})$.
+\end{enumerate}
+(Podstawowa wersja z~podręcznika Cormena, 3.~wyd., to tylko $k=0$; 4.~wyd.\
+podaje (a) dla $k\ge0$. Przypadki (b) i~(c) wypełniają lukę między przypadkiem 1 a~2.)
 \item Jeśli $f(n)=\Omega(n^{p+\varepsilon})$ dla pewnego $\varepsilon>0$ \textbf{oraz} spełniony jest
 \emph{warunek regularności}: $a f(n/b)\le c f(n)$ dla pewnej stałej $c<1$ i~wszystkich dostatecznie
 dużych $n$, to $T(n)=\Theta(f(n))$.
@@ -57,9 +63,37 @@ kosztuje mniej więcej tyle samo, stąd dodatkowy czynnik $\lg n$.
 dominuje korzeń: $\Theta(f(n))$. Warunek regularności to dokładnie
 „koszt poziomu $i+1$ jest $\le c\,\cdot$ koszt poziomu $i$”.
 \end{enumerate}
-Między przypadkami są \emph{luki}: np.\ $f(n)=n^p/\lg n$ jest mniejsza od $n^p$,
-ale nie wielomianowo --- wtedy twierdzenie nic nie mówi (zad.~3).
+W~przypadku 2 o~wyniku decyduje, jak szybko rośnie suma
+$\sum_{j=1}^{m}j^k$ (koszty kolejnych poziomów od dołu):
+dla $k>-1$ rośnie jak $m^{k+1}$, dla $k=-1$ to liczba harmoniczna $H_m\approx\ln m$,
+a dla $k<-1$ szereg jest zbieżny --- suma jest stałą i~wygrywają liście.
+
+Luki wciąż istnieją, np.\ $f(n)=n^p\lg\lg n$ (nie jest postaci $n^p\lg^kn$)
+albo $f$ oscylująca między $n^{p-1}$ a~$n^{p+1}$ --- wtedy liczymy drzewem rekursji.
 \end{intuicja}
+
+\begin{proof}[Dowód przypadku 2 (dla $n=b^m$)]
+Na głębokości $i$ jest $a^i$ węzłów rozmiaru $n/b^i$, a~$a^i=(b^i)^p$, więc
+koszt poziomu $i$ to
+\[
+a^i\,\Theta\Bigl(\Bigl(\frac{n}{b^i}\Bigr)^p\lg^k\frac{n}{b^i}\Bigr)
+=\Theta\bigl(n^p\,((m-i)\lg b)^k\bigr)=\Theta\bigl(n^p(m-i)^k\bigr).
+\]
+(Stała w~$\Theta$ jest wspólna dla wszystkich poziomów, bo $f$ jest między
+$c_1n^p\lg^kn$ a~$c_2n^p\lg^kn$, a~$\lg b$ to stała.) Sumując po
+$i=0,\dots,m-1$ i~podstawiając $j=m-i$:
+\[
+T(n)=\Theta(n^p)+\Theta\Bigl(n^p\sum_{j=1}^mj^k\Bigr).
+\]
+Porównując sumę z~całką $\int_1^m x^k\,dx$ (jak w~zad.~6 zestawu 0):
+\begin{itemize}
+\item $k>-1$: $\sum_{j=1}^mj^k=\Theta(m^{k+1})$, więc $T(n)=\Theta(n^p\lg^{k+1}n)$
+(bo $m=\log_bn=\Theta(\lg n)$, a~składnik $n^p$ jest mniejszy);
+\item $k=-1$: $\sum_{j=1}^m\frac1j=H_m=\Theta(\lg m)=\Theta(\lg\lg n)$;
+\item $k<-1$: $\sum_{j=1}^m j^k\le\sum_{j=1}^\infty j^k<\infty$ (szereg zbieżny),
+więc suma to $\Theta(1)$ (jest $\ge1$) i~$T(n)=\Theta(n^p)$.\qedhere
+\end{itemize}
+\end{proof}
 
 \begin{uwaga}[Podłogi, sufity, potęgi $b$]
 Rachunki prowadzimy zwykle dla $n=b^m$. Jeśli $T$ jest niemalejąca, a~wynik
@@ -133,7 +167,7 @@ Schemat: (1)~policz $p=\log_ba$; (2)~porównaj $f(n)$ z~$n^p$;
 \begin{odpowiedz}(b) $T(n)=\Theta(n^3)$.\end{odpowiedz}
 
 \textbf{(c)} $a=16$, $b=4$, $p=\log_416=2$. $f(n)=n^2\lg^3n=\Theta(n^p\lg^3 n)$ ---
-przypadek 2 w~wersji rozszerzonej, $k=3$.
+przypadek 2(a) w~wersji rozszerzonej, $k=3$.
 
 \emph{Sprawdzenie drzewem rekursji} (gdyby na wykładzie była tylko wersja
 z~$k=0$): dla $n=4^m$ na poziomie $i$ jest $16^i$ węzłów rozmiaru $n/4^i$, więc
@@ -160,7 +194,8 @@ Dlaczego twierdzenia o~rekurencji uniwersalnej nie można zastosować do równan
 $T(n)=9T\bigl(\frac n3\bigr)+\frac{n^2}{\lg n}$? Oszacuj $T(n)$ z~dokładnością do $\Theta$.
 \end{tresc}
 
-\textbf{Dlaczego nie można.} $p=\log_39=2$, $f(n)=n^2/\lg n$.
+\textbf{Dlaczego nie można} (w~wersji twierdzenia z~wykładu / Cormena,
+gdzie w~przypadku 2 jest $k\ge0$). $p=\log_39=2$, $f(n)=n^2/\lg n$.
 \begin{itemize}
 \item Przypadek 1 wymaga $f(n)=\O(n^{2-\varepsilon})$, ale
 $\frac{f(n)}{n^{2-\varepsilon}}=\frac{n^\varepsilon}{\lg n}\to\infty$ dla każdego $\varepsilon>0$.
@@ -168,7 +203,9 @@ $\frac{f(n)}{n^{2-\varepsilon}}=\frac{n^\varepsilon}{\lg n}\to\infty$ dla każde
 \item Przypadek 3 wymaga $f(n)=\Omega(n^{2+\varepsilon})$, a~$f(n)<n^2$.
 \end{itemize}
 $f$ jest mniejsza od $n^p$, ale tylko o~czynnik logarytmiczny, a~nie
-wielomianowy --- wpada w~lukę między przypadkiem 1 i~2.
+wielomianowy --- wpada w~lukę między przypadkiem 1 i~2. Dokładnie tę lukę
+zamyka przypadek 2(b) rozszerzonego twierdzenia ($k=-1$), który od razu daje
+$\Theta(n^2\lg\lg n)$; poniżej liczymy to bezpośrednio.
 
 \begin{intuicja}
 Drzewo rekursji: na poziomie $i$ jest $9^i$ węzłów rozmiaru $n/3^i$. Czynnik
@@ -189,7 +226,8 @@ $\lg m=\lg\lg n-\lg\lg3=\Theta(\lg\lg n)$. Przejście do dowolnych $n$ ---
 uwaga o~podłogach i~sufitach.
 \begin{odpowiedz}
 Twierdzenie nie działa, bo $n^2/\lg n$ jest mniejsza od $n^{\log_39}=n^2$ tylko
-o~czynnik logarytmiczny. Rozwiązanie: $T(n)=\Theta(n^2\lg\lg n)$.
+o~czynnik logarytmiczny (to przypadek „$k=-1$”). Rozwiązanie:
+$T(n)=\Theta(n^2\lg\lg n)$, zgodnie z~przypadkiem 2(b) wersji rozszerzonej.
 \end{odpowiedz}
 
 % ---------------------------------------------------------------------
