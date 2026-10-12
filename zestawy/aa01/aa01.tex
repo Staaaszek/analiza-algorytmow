@@ -102,6 +102,68 @@ $n^\alpha\lg^\beta n$, $n^\alpha\lg\lg n$ itp.), to z~$T(b^m)\le T(n)\le T(b^{m+
 dla $b^m\le n<b^{m+1}$ wynik przenosi się na wszystkie $n$.
 \end{uwaga}
 
+\subsection*{Twierdzenie Akry--Bazziego}
+
+Twierdzenie o~rekurencji uniwersalnej wymaga podziału na \emph{równe} części.
+Gdy części są różnych rozmiarów (zad.~5--7), używamy uogólnienia.
+
+\begin{twierdzenie}[Akra--Bazzi, 1998; wersja Leightona]\label{tw:akra}
+Niech dla $x\ge x_0$
+\[
+T(x)=g(x)+\sum_{i=1}^{k}a_i\,T\bigl(b_ix+h_i(x)\bigr),
+\]
+a dla $1\le x<x_0$ (lub innego przedziału startowego) $T(x)=\Theta(1)$. Załóżmy, że:
+\begin{enumerate}
+\item $k\ge1$ oraz $a_i>0$ i~$0<b_i<1$ to stałe;
+\item $g\ge0$ rośnie \emph{co najwyżej wielomianowo}: istnieją stałe
+$c_1,c_2>0$, że dla $u\in[b_ix,x]$ jest $c_1g(x)\le g(u)\le c_2g(x)$
+(wystarczy np.\ $|g'(x)|=\O(x^c)$ dla pewnego $c$);
+\item zaburzenia są małe: $|h_i(x)|=\O\bigl(x/\lg^2x\bigr)$ --- tu mieszczą się
+wszystkie podłogi i~sufity, bo $|\ceil{b_ix}-b_ix|<1$.
+\end{enumerate}
+Niech $p\in\R$ będzie (jedynym) rozwiązaniem równania
+\[
+\sum_{i=1}^ka_ib_i^{\,p}=1.
+\]
+Wtedy
+\[
+T(x)=\Theta\Bigl(x^p\Bigl(1+\int_1^x\frac{g(u)}{u^{p+1}}\,du\Bigr)\Bigr).
+\]
+\end{twierdzenie}
+
+\begin{uwaga}[Dlaczego $p$ istnieje i~jest jedno]
+Funkcja $\varphi(q)=\sum_ia_ib_i^{\,q}$ jest ciągła i~ściśle malejąca (bo
+$0<b_i<1$), $\varphi(q)\to\infty$ dla $q\to-\infty$ i~$\varphi(q)\to0$ dla
+$q\to\infty$. Przyjmuje więc wartość $1$ dokładnie raz. Przydatne: jeśli
+$\varphi(1)<1$, to $p<1$; jeśli $\varphi(1)=1$, to $p=1$.
+\end{uwaga}
+
+\begin{intuicja}
+$p$ to odpowiednik wykładnika krytycznego $\log_ba$: funkcja $x^p$ jest
+„niezmiennikiem” rekurencji bez $g$, bo $\sum_ia_i(b_ix)^p=x^p\sum_ia_ib_i^{\,p}=x^p$.
+Czynnik $x^p$ to koszt liści. Całka to ciągła wersja sumowania kosztów
+poziomów drzewa rekursji: węzeł rozmiaru $u$ kosztuje $g(u)$, a~„węzłów
+rozmiaru około $u$” jest około $(x/u)^p$, co daje
+$\sum(x/u)^pg(u)\approx x^p\int g(u)/u^{p+1}\,du$ (dodatkowe $1/u$ bierze się
+z~tego, że rozmiary maleją geometrycznie, czyli $du/u$ odpowiada jednemu
+poziomowi). Całkę liczymy od dowolnej stałej, np.\ od 2, gdy $g$ nie jest
+określona w~1 --- to zmienia wynik tylko o~stałą.
+\end{intuicja}
+
+\begin{fakt}[Master Theorem jako szczególny przypadek]
+Dla $T(n)=aT(n/b)+n^{q}\lg^kn$ mamy jeden składnik, $ab^{-p}=1$, czyli $p=\log_ba$, oraz
+\[
+\int_2^x\frac{u^q\lg^ku}{u^{p+1}}\,du=\int_2^xu^{q-p-1}\lg^ku\,du.
+\]
+Dla $q<p$ całka jest zbieżna --- $T=\Theta(x^p)$ (przypadek 1). Dla $q>p$ wynosi
+$\Theta(x^{q-p}\lg^kx)$ --- $T=\Theta(x^q\lg^kx)=\Theta(g)$ (przypadek 3).
+Dla $q=p$ podstawiamy $v=\lg u$, $du/u=\ln2\,dv$:
+$\int_1^{\lg x}v^k\,dv\cdot\ln 2$, czyli $\Theta(\lg^{k+1}x)$ dla $k>-1$,
+$\Theta(\lg\lg x)$ dla $k=-1$, $\Theta(1)$ dla $k<-1$ --- dokładnie trzy warianty
+przypadku 2. Akra--Bazzi nie potrzebuje przy tym warunku regularności.
+\end{fakt}
+
+
 % ---------------------------------------------------------------------
 \section{Zadanie 1. Sortowanie talii kart}
 \begin{tresc}
@@ -224,6 +286,12 @@ Zatem $T(3^m)=9^m\bigl(T(1)+H_m/\lg3\bigr) = n^2\bigl(\Theta(1)+\Theta(\lg m)\bi
 (zestaw 0, zad.~6: $H_m=\Theta(\ln m)$). Ponieważ $m=\log_3n$, mamy
 $\lg m=\lg\lg n-\lg\lg3=\Theta(\lg\lg n)$. Przejście do dowolnych $n$ ---
 uwaga o~podłogach i~sufitach.
+
+\emph{Sprawdzenie Akrą--Bazzim} (Tw.~\ref{tw:akra}). $9\cdot(1/3)^p=1$ daje $p=2$, a
+\[
+\int_2^x\frac{u^2/\lg u}{u^3}\,du=\int_2^x\frac{du}{u\lg u}=\ln2\,\bigl(\ln\lg x-\ln\lg 2\bigr)=\Theta(\lg\lg x),
+\]
+więc $T(x)=\Theta(x^2\lg\lg x)$ \checkmark. (Akra--Bazzi nie ma luk typu „$k=-1$”.)
 \begin{odpowiedz}
 Twierdzenie nie działa, bo $n^2/\lg n$ jest mniejsza od $n^{\log_39}=n^2$ tylko
 o~czynnik logarytmiczny (to przypadek „$k=-1$”). Rozwiązanie:
@@ -272,6 +340,12 @@ T(n)=c\Bigl(qr+\frac{a\,q(q+1)}{2}\Bigr)+q\,T(a)+T(r).
 \]
 Przy $q=\ceil{n/a}-1=\Theta(n)$ (bo $a$ to stała) dominuje składnik
 $\frac{ca}{2}q^2=\Theta(n^2)$; pozostałe są $\O(n)$.
+
+\begin{uwaga}
+Akry--Bazziego \emph{nie} da się tu użyć: $T(n-a)$ to $b=1$ z~zaburzeniem $-a$,
+a~twierdzenie wymaga $b_i<1$. Podział „odcinamy stałą” nie zmniejsza
+problemu proporcjonalnie, dlatego wynik ($n^2$) jest zupełnie inny niż w~zad.~5.
+\end{uwaga}
 \begin{odpowiedz}$T(n)=\Theta(n^2)$, dokładniej $T(n)=\frac{c}{2a}n^2+\O(n)$.\end{odpowiedz}
 
 % ---------------------------------------------------------------------
@@ -333,6 +407,11 @@ T(n)&\le K\alpha n\lg(\alpha n)+K(1-\alpha)n\lg((1-\alpha)n)+cn\\
 &=Kn\lg n-Kn\,h(\alpha)+cn\ \le\ Kn\lg n,
 \end{align*}
 o ile $K\ge c/h(\alpha)$ (z~odpowiednio dobranym warunkiem brzegowym).
+
+\emph{Sprawdzenie Akrą--Bazzim.} $a_1=a_2=1$, $b_1=\alpha$, $b_2=1-\alpha$;
+$\alpha^p+(1-\alpha)^p=1$ dla $p=1$. Całka: $\int_1^x\frac{cu}{u^2}\,du=c\ln x$, więc
+$T(x)=\Theta\bigl(x(1+c\ln x)\bigr)=\Theta(x\lg x)$ \checkmark. Wartość $\alpha$ nie
+wpływa na $p$ --- dlatego nierówny podział zmienia tylko stałą.
 \begin{odpowiedz}$T(n)=\Theta(n\lg n)$ (asymptotycznie $T(n)\sim\frac{c}{h(\alpha)}\,n\lg n$).\end{odpowiedz}
 
 % ---------------------------------------------------------------------
@@ -370,6 +449,15 @@ T(n)\le\sum_{i=1}^k(Ka_in+B)+n = Ksn+kB+n.
 Chcemy $Ksn+kB+n\le Kn+B$, tj.\ $n\bigl(K(1-s)-1\bigr)\ge(k-1)B$. Z~wyboru $K$
 lewa strona to $n(k-1)B\ge(k-1)B$, bo $n\ge n_0\ge1$ \checkmark.
 Każde $n$ jest objęte pewnym $P_j$, więc $T(n)\le Kn+B=\O(n)$.
+
+\emph{Sprawdzenie Akrą--Bazzim.} Wszystkie wagi są równe 1, a współczynniki to
+$b_i=a_i$. Ponieważ $\varphi(1)=\sum a_i<1$, mamy $p<1$; ponadto $\varphi(0)=k\ge1$,
+więc $p\ge0$. Całka:
+\[
+\int_1^x\frac{u}{u^{p+1}}\,du=\int_1^xu^{-p}\,du=\frac{x^{1-p}-1}{1-p}=\Theta(x^{1-p}),
+\]
+więc $T(x)=\Theta\bigl(x^p\cdot x^{1-p}\bigr)=\Theta(x)$ \checkmark. Zatem
+$\sum a_i<1$ to dokładnie warunek $p<1$, przy którym dominuje korzeń.
 \begin{odpowiedz}$n\le T(n)\le\frac{1+(k-1)B}{1-\sum a_i}\,n+B$, czyli $T(n)=\Theta(n)$.\end{odpowiedz}
 
 \begin{uwaga}
@@ -419,6 +507,11 @@ jest $\ge0$ i~$T(n)\le Kn$ \checkmark.
 T(n)\le K\Bigl(\frac n5+1\Bigr)+K\Bigl(\frac{3n}4+1\Bigr)+c_2n=Kn-\Bigl(\frac{Kn}{20}-c_2n-2K\Bigr),
 \]
 a $\frac{Kn}{20}-c_2n\ge\frac{Kn}{40}\ge2K$ dla $n\ge80$.
+
+\emph{Sprawdzenie Akrą--Bazzim.} Sufity to zaburzenia $|h_i(n)|<1=\O(n/\lg^2n)$,
+więc można je pominąć. (a) $(1/5)^p+(7/10)^p=1$ daje $p\approx0{,}840$; (b)
+$(1/5)^p+(3/4)^p=1$ daje $p\approx0{,}911$. W~obu przypadkach $p<1$, bo
+$\varphi(1)<1$. Jak w~zad.~6 dostajemy $T(n)=\Theta(n^p\cdot n^{1-p})=\Theta(n)$ \checkmark.
 \begin{odpowiedz}(a) $T(n)=\Theta(n)$;\quad (b) $T(n)=\Theta(n)$.\end{odpowiedz}
 
 % ---------------------------------------------------------------------
@@ -462,6 +555,11 @@ T(n)=\sum_{i=0}^{L-2}\frac{1}{\lgs n_i}=\sum_{i=0}^{L-2}\frac{1}{L-i}=\sum_{j=2}
 \]
 Z~zad.~6 zestawu 0: $\ln L<H_L<\ln L+1$, więc $T(n)=\Theta(\lg L)$.
 Sprawdzenie: $T(3)=T(2)+\frac{1}{\lgs3}=\frac12=H_2-1$ \checkmark.
+
+\begin{uwaga}
+Tu też nie ma zastosowania ani Master Theorem, ani Akra--Bazzi: argument
+spada z~$n$ do $\lg n$, a nie do $b\cdot n$.
+\end{uwaga}
 \begin{odpowiedz}$T(n)=H_{\lgs n}-1=\Theta(\lg\lgs n)$ dla $n\ge3$.\end{odpowiedz}
 
 % ---------------------------------------------------------------------

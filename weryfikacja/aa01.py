@@ -120,3 +120,24 @@ for k, g in [(1, lambda m: m**2), (0.5, lambda m: m**1.5), (-1, lambda m: math.l
     r = [master_ratio(m, k) / g(m) for m in (200, 400, 800)]
     assert max(r) / min(r) < 1.3, (k, r)  # iloraz ustabilizowany => Theta(g)
 print("ok  master k>-1, k=-1, k<-1")
+
+
+# Akra-Bazzi: wykładniki p z zadania 7 i sprawdzenie Theta(n) wprost
+def solve_p(bs):
+    lo, hi = -10.0, 10.0
+    for _ in range(200):
+        mid = (lo + hi) / 2
+        lo, hi = (mid, hi) if sum(b**mid for b in bs) > 1 else (lo, mid)
+    return lo
+
+
+assert abs(solve_p([0.2, 0.7]) - 0.8398) < 1e-3
+assert abs(solve_p([0.2, 0.75]) - 0.9114) < 1e-3
+for b1, b2 in [(5, 0.7), (5, 0.75)]:
+    T = [1.0] * 50
+    for n in range(50, 200001):
+        T.append(T[math.ceil(n / b1)] + T[math.ceil(b2 * n)] + n)
+    # T(n)/n ograniczone przez ~1/(1 - suma współczynników) => T = Theta(n)
+    bound = 1 / (1 - (1 / b1 + b2)) + 1
+    assert max(T[n] / n for n in range(50, len(T))) < bound
+print("ok  akra-bazzi (zad7)")
