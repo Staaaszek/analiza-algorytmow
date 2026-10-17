@@ -3,6 +3,16 @@
 Repo służy przez cały semestr: co jakiś czas dochodzi nowy zestaw zadań (PDF).
 Zadanie: rozwiązać go w LaTeX-u w tym samym stylu co poprzednie zestawy.
 
+## Notatki z wykładu
+`wyklady/` zawiera notatki z wykładów (np. `aa_w02_analiza_probab.pdf`).
+**Przed rozwiązywaniem zestawu przeczytaj wykład(y) z tego samego tematu**:
+teoria w zestawie ma iść za wykładem (te same definicje, lematy, oznaczenia,
+np. `Pr\{A\}`, `I\{A\}`, `Random(i,j)`), a w rozwiązaniach korzystaj
+przede wszystkim z metod pokazanych na wykładzie. Rzeczy spoza wykładu
+(np. Akra–Bazzi, rozszerzony Master Theorem) wolno dodać, ale wyraźnie jako
+uzupełnienie. Jeśli user doda nowy wykład, sprawdź, czy nie trzeba
+zaktualizować teorii we wcześniejszych zestawach.
+
 ## Przy nowym zestawie
 1. `./nowy-zestaw.sh NN ścieżka/do/zestawu.pdf` (treść ląduje w `zestawy/aaNN/tresc.pdf`).
 2. Przeczytaj PDF (obraz, nie tylko pdftotext — wzory się psują).

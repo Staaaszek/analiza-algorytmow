@@ -1,0 +1,546 @@
+\documentclass[11pt]{article}
+\usepackage{aa}
+
+\begin{document}
+\zestaw{2}{Analiza probabilistyczna, zmienne losowe wskaźnikowe, losowe permutacje}
+
+\begin{teoria}[Jak czytać ten dokument]
+Każde zadanie ma: przepisaną \textbf{treść} (szare pudełko), potrzebną
+\textbf{teorię} (niebieskie), \textbf{intuicję} (żółte), \textbf{rozwiązanie
+formalne} i~\textbf{odpowiedź} (zielone). Wyniki sprawdzono skryptem
+\texttt{weryfikacja/aa02.py} (pełne przeglądy permutacji i~losowań dla małych $n$).
+Teoria idzie za wykładem 2 („Analiza probabilistyczna algorytmów”).
+$\Pr\{A\}$ --- prawdopodobieństwo, $E[X]$ --- wartość oczekiwana,
+$\textsc{Random}(i,j)$ --- liczba całkowita z~$[i,j]$, każda z~prawd.\ $\frac{1}{j-i+1}$.
+\end{teoria}
+
+% =====================================================================
+\section{Teoria z wykładu}
+
+\subsection*{Prawdopodobieństwo i wartość oczekiwana}
+
+\begin{definicja}[Przestrzeń, zdarzenia, zmienne losowe]
+$S$ --- zbiór zdarzeń elementarnych (u nas skończony lub przeliczalny),
+każdy $s\in S$ ma prawdopodobieństwo $\Pr\{s\}\ge0$, $\sum_s\Pr\{s\}=1$.
+Zdarzenie to podzbiór $A\subseteq S$, $\Pr\{A\}=\sum_{s\in A}\Pr\{s\}$.
+Zmienna losowa to funkcja $X\colon S\to\R$, a jej wartość oczekiwana
+\begin{align*}
+E[X]&=\sum_{s\in S}X(s)\Pr\{s\}\\
+&=\sum_{x}x\cdot\Pr\{X=x\}.
+\end{align*}
+\end{definicja}
+
+\begin{twierdzenie}[Liniowość wartości oczekiwanej]\label{tw:lin}
+$E[X+Y]=E[X]+E[Y]$ oraz $E[cX]=cE[X]$ --- \textbf{zawsze}, także gdy $X$, $Y$
+są zależne. (Dowód: rozpisać $E$ jako sumę po $s\in S$.)
+\end{twierdzenie}
+
+\begin{definicja}[Prawdopodobieństwo warunkowe, niezależność]
+$\Pr\{A\mid B\}=\frac{\Pr\{A\cap B\}}{\Pr\{B\}}$ dla $\Pr\{B\}>0$; stąd
+$\Pr\{A\cap B\}=\Pr\{A\mid B\}\Pr\{B\}$. Zdarzenia są \emph{niezależne}, gdy
+$\Pr\{A\cap B\}=\Pr\{A\}\Pr\{B\}$.
+\end{definicja}
+
+\subsection*{Zmienne losowe wskaźnikowe}
+
+\begin{definicja}[Indykator]
+Dla zdarzenia $A$: $I\{A\}=1$, jeśli $A$ zachodzi, i~$0$ w~przeciwnym razie.
+\end{definicja}
+
+\begin{lemat}[z wykładu]\label{lem:ind}
+$E\bigl[I\{A\}\bigr]=\Pr\{A\}$.\\ \emph{Dowód:}
+$E[I\{A\}]=1\cdot\Pr\{A\}+0\cdot\Pr\{\bar A\}=\Pr\{A\}$.
+\end{lemat}
+
+\begin{intuicja}
+\textbf{Schemat, który rozwiązuje połowę zadań:} chcemy $E[X]$, gdzie $X$ coś
+\emph{zlicza}. Zamiast liczyć $\Pr\{X=i\}$ (zwykle trudne), rozbijamy
+$X=\sum_iX_i$ na indykatory „czy $i$-ta rzecz zaszła”. Z~liniowości i~lematu
+$E[X]=\sum_i\Pr\{\text{$i$-ta rzecz zaszła}\}$ --- a te prawdopodobieństwa są
+zwykle łatwe. Zależności między $X_i$ \emph{nie przeszkadzają}.
+Przykład z~wykładu: liczba orłów w~$n$ rzutach to $\sum X_i$, więc $E=n/2$.
+\end{intuicja}
+
+\begin{fakt}[Wartość oczekiwana z ogonów]\label{fakt:ogon}
+Dla zmiennej $X$ o~wartościach w~$\{0,1,2,\ldots\}$:
+$E[X]=\sum_{k\ge0}\Pr\{X>k\}$. \emph{Dowód:} $X=\sum_{k\ge0}I\{X>k\}$
+(dla $X=m$ jedynki stoją dokładnie przy $k=0,\dots,m-1$), dalej liniowość.
+\end{fakt}
+
+\begin{fakt}[Rozkład geometryczny]\label{fakt:geom}
+Powtarzamy niezależne próby, każda kończy się sukcesem z~prawd.\ $s>0$.
+Liczba prób do pierwszego sukcesu (włącznie) $X$ ma
+$\Pr\{X=k\}=(1-s)^{k-1}s$ i~$E[X]=\frac1s$ (z~Faktu~\ref{fakt:ogon}:
+$\sum_{k\ge0}(1-s)^k=\frac1s$).
+\end{fakt}
+
+\subsection*{Problem zatrudniania (sekretarki)}
+
+\begin{algorithm}[H]
+\caption{\textsc{Zatrudnij} (z wykładu)}
+\begin{algorithmic}[1]
+\State $\mathit{najlepszy}\gets-\infty$
+\For{$i\gets1$ \textbf{do} $n$}
+  \State przesłuchaj kandydata $i$
+  \If{kandydat $i$ lepszy niż $\mathit{najlepszy}$}
+     \State zwolnij poprzedniego, zatrudnij $i$; $\mathit{najlepszy}\gets i$
+  \EndIf
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+Zakładamy, że kandydaci mają parami różne oceny, a~kolejność jest
+\emph{losową permutacją} (każda z~$n!$ z~prawd.\ $1/n!$).
+
+\begin{fakt}[z wykładu]\label{fakt:rekord}
+Kandydat $i$ jest zatrudniany $\iff$ jest najlepszy spośród $1,\dots,i$.
+W~losowej permutacji pierwsze $i$ elementów jest w~losowej kolejności, więc
+to prawdopodobieństwo wynosi $\frac1i$. Stąd oczekiwana liczba zatrudnień
+to $\sum_{i=1}^n\frac1i=H_n=\ln n+\O(1)$.
+\end{fakt}
+
+\subsection*{Losowe permutacje}
+
+\begin{definicja}
+\emph{Losowa permutacja} --- każda z~$n!$ permutacji z~prawd.\ $1/n!$.
+\emph{$k$-permutacja} zbioru $n$-elementowego --- ciąg $k$ parami różnych
+elementów; jest ich $n!/(n-k)!$.
+\end{definicja}
+
+\begin{twierdzenie}[Tasowanie Knutha / Fishera--Yatesa, z wykładu]\label{tw:knuth}
+Algorytm
+\begin{center}
+\texttt{for i:=1 to n do}\\ \texttt{\ \ swap(A[i], A[Random(i,n)])}
+\end{center}
+generuje losową permutację.
+\end{twierdzenie}
+\begin{proof}[Szkic (jak na wykładzie)]
+Niezmiennik: przed iteracją $i$ każda $(i-1)$-permutacja $\sigma$ leży
+w~$A[1..i-1]$ z~prawd.\ $\frac{(n-i+1)!}{n!}$. Krok: $x_i$ wybieramy
+spośród $n-i+1$ elementów z~$A[i..n]$, więc
+$\Pr=\frac{1}{n-i+1}\cdot\frac{(n-i+1)!}{n!}=\frac{(n-i)!}{n!}$.
+Dla $i=n+1$ dostajemy $\frac{0!}{n!}=\frac1{n!}$.
+\end{proof}
+
+\begin{fakt}[Kryterium „liczenia losowań”]\label{fakt:liczenie}
+Jeśli algorytm wykonuje ustaloną liczbę losowań i~wszystkie $m$ możliwych
+ciągów wyników są jednakowo prawdopodobne, to permutacja $\pi$ wypada
+z~prawd.\ $\frac{c_\pi}{m}$, gdzie $c_\pi$ --- liczba ciągów dających $\pi$.
+W~szczególności \textbf{rozkład na wszystkich $n!$ permutacjach może być
+jednostajny tylko, gdy $n!\mid m$}. (Np.\ Knuth: $m=n\cdot(n-1)\cdots1=n!$,
+każdy ciąg daje inną permutację.)
+\end{fakt}
+
+% =====================================================================
+\section{Zadanie 1. Moneta o zadanym rozkładzie}
+\begin{tresc}
+Mamy do dyspozycji procedurę \textsc{Biased-Random}, która zwraca wartość~0
+z~prawdopodobieństwem $p$, zaś wartość~1 z~prawdopodobieństwem $1-p$, gdzie $p$
+jest pewną liczbą z~przedziału $(0,1)$. Zaproponuj algorytm, który,
+wykorzystując \textsc{Biased-Random} jako procedurę pomocniczą, zwraca~0
+z~prawdopodobieństwem $p/(1+p)$ oraz~1 z~prawdopodobieństwem $1/(1+p)$. Jaki
+jest oczekiwany czas działania tego algorytmu w~zależności od $p$?
+\end{tresc}
+
+\begin{intuicja}
+Chcemy, żeby wyniki 0 i~1 miały się do siebie jak $p:1$. Rzucamy monetą, aż
+wypadnie 1, i~liczymy zera przed nią. Zero zer (od razu 1) ma prawd.\ $q=1-p$,
+jedno zero --- $pq$, dwa --- $p^2q$, itd. Każde kolejne zero mnoży
+prawdopodobieństwo przez $p$, więc „nieparzysta liczba zer” ma się do
+„parzystej” dokładnie jak $p:1$. Zwracamy parzystość liczby zer.
+\end{intuicja}
+
+\begin{algorithm}[H]
+\caption{\textsc{Parzystość}}
+\begin{algorithmic}[1]
+\State $b\gets1$ \Comment{$b=1$: dotąd parzyście wiele zer}
+\While{\Call{Biased-Random}{\relax}$=0$}
+  \State $b\gets1-b$
+\EndWhile
+\State \Return $b$
+\end{algorithmic}
+\end{algorithm}
+
+\formalnie
+Niech $q=1-p$, a~$N$ --- liczba zer przed pierwszą jedynką. Wywołania są
+niezależne, więc $\Pr\{N=m\}=p^mq$. Algorytm zwraca 0 $\iff N$ nieparzyste:
+\[
+\Pr\{\text{wynik }0\}=\sum_{j\ge0}p^{2j+1}q=\frac{pq}{1-p^2}=\frac{p(1-p)}{(1-p)(1+p)}=\frac{p}{1+p},
+\]
+a $\Pr\{\text{wynik }1\}=1-\frac{p}{1+p}=\frac{1}{1+p}$. Algorytm kończy się
+z~prawdopodobieństwem 1 (bo $\sum_m\Pr\{N=m\}=1$).
+
+\emph{Czas.} Liczba wywołań to $N+1$ --- czas do pierwszego sukcesu
+(„wypadło 1”) w~próbach z~prawd.\ sukcesu $q$. Z~Faktu~\ref{fakt:geom}:
+$E[N+1]=\frac1q=\frac{1}{1-p}$.
+
+\emph{Równoważny opis „w rundach”} (często podawany): losuj $x$; jeśli $x=1$,
+zwróć 1; inaczej losuj $y$; jeśli $y=1$, zwróć 0; jeśli $x=y=0$, zacznij od
+nowa. Runda kończy się wynikiem 0 z~prawd.\ $pq$, wynikiem 1 z~prawd.\ $q$,
+a~proporcja $pq:q=p:1$ daje to samo. Oczekiwany koszt:
+$\frac{\text{koszt rundy}}{\Pr\{\text{koniec rundy}\}}=\frac{q+2p}{1-p^2}=\frac{1+p}{1-p^2}=\frac1{1-p}$.
+\begin{odpowiedz}
+Zwracamy parzystość liczby zer przed pierwszą jedynką. Daje to 0 z~prawd.\
+$\frac{p}{1+p}$ i~1 z~prawd.\ $\frac1{1+p}$, a oczekiwana liczba wywołań
+\textsc{Biased-Random} to $\frac{1}{1-p}$. Jest stała dla $p$ oddalonego od 1,
+ale rośnie do $\infty$, gdy $p\to1$.
+\end{odpowiedz}
+
+% =====================================================================
+\section{Zadanie 2. Dokładnie dwa zatrudnienia}
+\begin{tresc}
+Rozważmy problem sekretarki i~załóżmy, że kandydaci przybywają w~losowej
+kolejności. Jakie jest prawdopodobieństwo, że w~procedurze „zatrudnij”
+zatrudnimy dokładnie dwie osoby?
+\end{tresc}
+
+\begin{intuicja}
+Pierwszego kandydata zatrudniamy zawsze. Najlepszego (oznaczmy go $n$) też
+zatrudniamy zawsze, kiedykolwiek przyjdzie. Dokładnie dwa zatrudnienia
+oznaczają więc: najlepszy nie jest pierwszy, a~\emph{pomiędzy} pierwszym
+a~najlepszym nie pojawia się nikt lepszy od pierwszego. Inaczej: pierwszy
+kandydat jest najlepszy spośród wszystkich, którzy przyszli przed $n$.
+\end{intuicja}
+\formalnie
+Niech $B_i$ --- „najlepszy kandydat stoi na pozycji $i$”, $O_i$ --- „kandydat
+na pozycji 1 jest najlepszy wśród pozycji $1..i-1$”. Dla $i\ge2$:
+\[
+\{\text{dokładnie 2 zatrudnienia}\}=\bigcup_{i=2}^{n}\bigl(B_i\cap O_i\bigr),
+\]
+a zdarzenia $B_i\cap O_i$ dla różnych $i$ są rozłączne (najlepszy stoi tylko
+w jednym miejscu). Zdarzenia $B_i$ i~$O_i$ są niezależne --- dokładnie jak
+na wykładzie (strategia online): to, że na pozycji $i$ stoi maksimum, nie mówi
+nic o~kolejności na pozycjach $1..i-1$. Zatem
+$\Pr\{B_i\}=\frac1n$, $\Pr\{O_i\}=\frac1{i-1}$ (każdy z~$i-1$ pierwszych jest
+najlepszym z~nich z~tym samym prawd.) i
+\[
+\Pr\{\text{dokładnie 2}\}=\sum_{i=2}^{n}\frac1n\cdot\frac1{i-1}=\frac{H_{n-1}}{n}.
+\]
+\emph{Druga metoda} (warunkowanie oceną pierwszego). Jeśli pierwszy ma ocenę
+$k<n$ (prawd.\ $\frac1n$), to wśród $n-k$ lepszych od niego musi pierwszy
+pojawić się $n$; każdy z~nich jest „pierwszym lepszym” z~prawd.\ $\frac{1}{n-k}$.
+Suma $\sum_{k=1}^{n-1}\frac1n\cdot\frac1{n-k}=\frac{H_{n-1}}n$ \checkmark.
+
+Sprawdzenie dla $n=3$: dwa zatrudnienia dają permutacje $132$, $213$, $231$,
+czyli $\frac36=\frac12=\frac{H_2}{3}$ \checkmark.
+\begin{odpowiedz}
+$\Pr\{\text{dokładnie 2 zatrudnienia}\}=\dfrac{H_{n-1}}{n}\approx\dfrac{\ln n}{n}$ (dla $n\ge2$; dla $n=1$ --- zero).
+\end{odpowiedz}
+
+% =====================================================================
+\section{Zadanie 3. Silne inwersje}
+\begin{tresc}
+Niech $A[1:n]$ będzie losową permutacją zbioru $\{1,\ldots,n\}$. Dla ustalonego
+$k\ge1$ parę $(i,j)$, $i<j$, nazywamy \emph{silną inwersją}, gdy
+$A[i]>A[j]+k$. Zastosuj zmienne losowe wskaźnikowe do obliczenia oczekiwanej
+liczby silnych inwersji.
+\end{tresc}
+
+\begin{intuicja}
+Każda para pozycji $i<j$ dostaje losową \emph{uporządkowaną} parę różnych
+wartości $(A[i],A[j])$. Wystarczy policzyć, jaki ułamek takich par spełnia
+$a>b+k$, i~pomnożyć przez liczbę par pozycji $\binom n2$.
+\end{intuicja}
+\formalnie
+Niech $X_{ij}=I\{A[i]>A[j]+k\}$ dla $i<j$ i~$X=\sum_{i<j}X_{ij}$. W~losowej
+permutacji para $(A[i],A[j])$ ma rozkład jednostajny na $n(n-1)$
+uporządkowanych parach różnych wartości (każda para $(a,b)$, $a\ne b$,
+występuje w~$(n-2)!$ permutacjach). Pary $(a,b)$ z~$a>b+k$: dla ustalonego
+$b\in\{1,\dots,n-k-1\}$ mamy $a\in\{b+k+1,\dots,n\}$, czyli $n-k-b$ możliwości:
+\[
+\sum_{b=1}^{n-k-1}(n-k-b)=\sum_{t=1}^{n-k-1}t=\binom{n-k}{2}.
+\]
+Z~Lematu~\ref{lem:ind} $E[X_{ij}]=\binom{n-k}2\big/\bigl(n(n-1)\bigr)$, a~z~liniowości
+\[
+E[X]=\binom n2\cdot\frac{\binom{n-k}2}{n(n-1)}=\frac12\binom{n-k}{2}=\frac{(n-k)(n-k-1)}{4}.
+\]
+Dla $k\ge n-1$ silnych inwersji nie ma (wzór daje wtedy $0$ dla $k=n-1,n$; dla
+$k>n$ trzeba przyjąć $0$). Kontrola: „$k=0$” to zwykłe inwersje i~wzór daje
+znane $\frac{n(n-1)}{4}$.
+\begin{odpowiedz}
+$E[\text{liczba silnych inwersji}]=\dfrac{(n-k)(n-k-1)}{4}$ dla $1\le k\le n-1$ (i~$0$ dla $k\ge n-1$).
+\end{odpowiedz}
+
+% =====================================================================
+\section{Zadanie 4. Liczba różnych wyników losowania}
+\begin{tresc}
+Wykonujemy $n$-krotnie procedurę $\textsc{Random}(1,n^3)$. Wyznacz wartość
+oczekiwaną liczby różnych otrzymanych wyników jako funkcję $n$. Następnie
+wyprowadź rozwinięcie asymptotyczne tej wartości z~dokładnością do składnika
+rzędu $\O(1/n^2)$.
+\end{tresc}
+
+\begin{intuicja}
+To jest metoda 2 z~wykładu (losowe klucze z~$[1,n^3]$ i~sortowanie): pytamy,
+jak często klucze się powtarzają. Indykatory zakładamy na \emph{wartości}:
+„czy wartość $v$ wypadła choć raz”. Ponieważ $n\ll n^3$, prawie wszystkie
+wyniki są różne: braknie średnio około $\binom n2/n^3\approx\frac{1}{2n}$.
+\end{intuicja}
+\formalnie
+Niech $N=n^3$, $Y_v=I\{\text{wartość $v$ wypadła co najmniej raz}\}$,
+$v=1,\dots,N$. Losowania są niezależne, więc
+$\Pr\{Y_v=0\}=(1-\frac1N)^n$ i
+\[
+E[Y]=\sum_{v=1}^NE[Y_v]=N\Bigl(1-\bigl(1-\tfrac1N\bigr)^n\Bigr)=n^3\Bigl(1-\bigl(1-n^{-3}\bigr)^n\Bigr).
+\]
+\emph{Asymptotyka.} Ze wzoru dwumianowego (skończona suma):
+\[
+N\Bigl(1-\bigl(1-\tfrac1N\bigr)^n\Bigr)=\sum_{j=1}^{n}(-1)^{j+1}\binom nj N^{1-j}
+= n-\frac{\binom n2}{N}+\frac{\binom n3}{N^2}-\cdots
+\]
+Wyrazy tej sumy maleją co do modułu (stosunek kolejnych to
+$\frac{n-j}{(j+1)N}<1$) i~mają naprzemienne znaki, więc błąd po
+odcięciu jest mniejszy od pierwszego pominiętego wyrazu. Mamy
+\begin{align*}
+\frac{\binom n2}{n^3}&=\frac{n^2-n}{2n^3}=\frac1{2n}-\frac{1}{2n^2},\\
+\frac{\binom n3}{n^6}&\le\frac{n^3}{6n^6}=\frac{1}{6n^3}.
+\end{align*}
+\begin{odpowiedz}
+\vspace{-1ex}
+\begin{align*}
+E[\text{liczba różnych}]&=n^3\Bigl(1-\bigl(1-n^{-3}\bigr)^n\Bigr)\\
+&=n-\frac1{2n}+\O\Bigl(\frac1{n^2}\Bigr)
+\end{align*}
+(dokładniej: $n-\frac1{2n}+\frac1{2n^2}+\O(n^{-3})$). Średnio brakuje tylko
+$\approx\frac{1}{2n}$ wyników, więc powtórzenia kluczy w~metodzie 2 są rzadkie.
+\end{odpowiedz}
+
+% =====================================================================
+\section{Zadanie 5. Kule i urny: pierwsza kolizja}
+\begin{tresc}
+Przypuśćmy, że kule są wrzucane do $b$ urn. Rzuty są niezależne i~każda kula
+może trafić do każdej z~urn z~jednakowym prawdopodobieństwem. Jaka jest
+oczekiwana liczba rzutów, zanim co najmniej jedna z~urn będzie zawierać dwie
+kule? Wystarczy dokładny wzór, ale spróbuj również wyznaczyć asymptotykę
+(powie nam znacznie więcej).
+\end{tresc}
+
+\begin{teoria}[Paradoks urodzin]
+Wśród zaledwie 23 osób z~prawd.\ $>\frac12$ dwie mają urodziny tego samego
+dnia. Ogólnie: przy $b$ „urnach” kolizje pojawiają się już po $\Theta(\sqrt b)$
+rzutach, a nie po $\Theta(b)$. Powód: kolizja może zajść w~każdej z~$\binom k2$
+\emph{par} kul, a par jest $\approx k^2/2$.
+\end{teoria}
+
+\begin{intuicja}
+$k$ pierwszych kul trafia do różnych urn z~prawd.\
+$1\cdot\frac{b-1}{b}\cdots\frac{b-k+1}{b}\approx e^{-k^2/(2b)}$. Wykres tej
+funkcji to „połówka dzwonu” o~szerokości $\sqrt b$, a~$E$ to pole pod nim:
+$\int_0^\infty e^{-x^2/(2b)}dx=\sqrt{\pi b/2}\approx1{,}25\sqrt b$.
+\end{intuicja}
+\formalnie
+Niech $X$ --- numer rzutu, w~którym po raz pierwszy kula trafia do zajętej
+urny (rzut „z~kolizją” liczymy). Mamy $X\le b+1$ i
+\begin{align*}
+\Pr\{X>k\}&=\Pr\{\text{$k$ pierwszych kul w różnych urnach}\}\\
+&=\frac{b(b-1)\cdots(b-k+1)}{b^k}=\frac{\ff bk}{b^k}.
+\end{align*}
+Z~Faktu~\ref{fakt:ogon}:
+\begin{align*}
+E[X]=\sum_{k=0}^{b}\frac{\ff bk}{b^k}&=1+1+\Bigl(1-\frac1b\Bigr)\\
+&\quad+\Bigl(1-\frac1b\Bigr)\Bigl(1-\frac2b\Bigr)+\cdots
+\end{align*}
+\emph{Asymptotyka --- górne ograniczenie.} Z~$1-x\le e^{-x}$:
+\[
+\frac{\ff bk}{b^k}\le\exp\Bigl(-\sum_{i<k}\frac ib\Bigr)=e^{-\frac{k(k-1)}{2b}}\le e^{-\frac{(k-1)^2}{2b}}.
+\]
+Funkcja $e^{-x^2/(2b)}$ maleje, więc (jak w~zad.~6 zestawu 0)
+\[
+E[X]\le1+\sum_{k\ge1}e^{-(k-1)^2/(2b)}\le2+\int_0^\infty e^{-x^2/(2b)}dx=2+\sqrt{\frac{\pi b}2}.
+\]
+\emph{Dolne ograniczenie.} Dla $0\le x\le\frac12$ zachodzi $1-x\ge e^{-x-x^2}$, więc
+dla $k\le K:=b^{0{,}6}$ (wtedy $\frac kb\le\frac12$ dla dużych $b$)
+\[
+\frac{\ff bk}{b^k}\ge\exp\Bigl(-\frac{k^2}{2b}-\frac{k^3}{3b^2}\Bigr)\ge e^{-k^2/(2b)}\,e^{-b^{-0{,}2}/3}.
+\]
+Stąd
+\begin{align*}
+E[X]&\ge(1-o(1))\sum_{k\le K}e^{-k^2/(2b)}\\
+&\ge(1-o(1))\Bigl(\int_0^{K}e^{-x^2/(2b)}dx-1\Bigr),
+\end{align*}
+a~ponieważ $K/\sqrt b=b^{0{,}1}\to\infty$, całka to $(1-o(1))\sqrt{\pi b/2}$.
+Zatem $E[X]\sim\sqrt{\pi b/2}$.
+
+\emph{Dokładniej} (Knuth, TAOCP t.~1, §1.2.11.3 --- funkcja $Q$ Ramanujana):
+\[
+E[X]=\sqrt{\frac{\pi b}{2}}+\frac23+\O\Bigl(\frac{1}{\sqrt b}\Bigr).
+\]
+Dla $b=365$: dokładnie $E[X]\approx24{,}617$, wzór daje $24{,}61$.
+\begin{odpowiedz}
+$E[X]=\displaystyle\sum_{k=0}^{b}\frac{b!}{(b-k)!\,b^k}=\sqrt{\frac{\pi b}{2}}+\frac23+\O(b^{-1/2})$.\\
+(Liczba rzutów \emph{przed} kolizyjnym jest o~1 mniejsza.) Wniosek: pierwsza
+kolizja pojawia się po $\Theta(\sqrt b)$ rzutach, a nie po $\Theta(b)$. Na przykład
+tablica haszująca rozmiaru $b$ dostaje pierwszą kolizję po ok.\ $1{,}25\sqrt b$
+wstawieniach, a~w~grupie ok.\ 25 osób zwykle są dwie z~tymi samymi urodzinami.
+\end{odpowiedz}
+
+% =====================================================================
+\section{Zadanie 6. Trójki urodzinowe}
+\begin{tresc}
+Ile osób powinno zostać zaproszonych na przyjęcie, aby oczekiwana liczba
+trójek osób urodzonych jednego dnia wyniosła co najmniej~1?
+\end{tresc}
+
+\begin{intuicja}
+Ten sam trik co dla par z~wykładu/CLRS, tylko na trójkach: jest $\binom n3$
+trójek osób i~każda „trafia w~jeden dzień” z~prawd.\ $\frac1{365^2}$ (druga i~trzecia
+osoba muszą trafić w~dzień pierwszej).
+\end{intuicja}
+\formalnie
+Przyjmujemy $d=365$ dni, urodziny niezależne i~jednostajne. Dla każdej
+3-elementowej grupy osób $\{x,y,z\}$ niech
+$X_{xyz}=I\{\text{$x,y,z$ urodzeni tego samego dnia}\}$;
+$\Pr=\sum_{r=1}^{d}\frac1{d^3}=\frac1{d^2}$. Z~liniowości
+\[
+E[X]=\binom n3\frac1{d^2}\ge1\iff n(n-1)(n-2)\ge6\cdot365^2=799\,350.
+\]
+$93\cdot92\cdot91=778\,596<799\,350$, a $94\cdot93\cdot92=804\,264\ge799\,350$.
+(Liczymy trójki osób: czwórka z~jednego dnia daje $\binom43=4$ trójki.)
+\begin{odpowiedz}
+Wystarczy $n=94$ osoby (ogólnie $n\approx\sqrt[3]{6}\,d^{2/3}$). Dla porównania:
+oczekiwana liczba \emph{par} przekracza 1 już przy $n=28$.
+\end{odpowiedz}
+
+% =====================================================================
+\section{Zadania 7--9. Generowanie permutacji}
+\begin{tresc}
+W~każdym z~zadań 7--9 scharakteryzuj zbiór permutacji rozmiaru $n$, które
+mogą zostać wygenerowane. Sprawdź ponadto, czy algorytm generuje możliwe do
+otrzymania permutacje zgodnie z~rozkładem jednostajnym.
+\end{tresc}
+
+\begin{teoria}[Permutacje jako funkcje, cykle]
+Wynik algorytmu traktujemy jako funkcję $\pi\colon\{1..n\}\to\{1..n\}$, gdzie
+$\pi(x)$ --- pozycja, na której wylądował element początkowo stojący na
+pozycji $x$ (albo odwrotnie --- wybór nie wpływa na odpowiedzi, bo
+$\pi\mapsto\pi^{-1}$ jest bijekcją zachowującą typ cykli). Każda permutacja
+rozkłada się na rozłączne \emph{cykle} $x\to\pi(x)\to\pi(\pi(x))\to\dots\to x$.
+\emph{$n$-cykl} (permutacja cykliczna) to permutacja z~jednym cyklem długości $n$;
+jest ich $(n-1)!$ (ustawiamy $2,\dots,n$ w~kolejności za elementem 1).
+\emph{Transpozycja} $(i\;j)$ zamienia $i$ z~$j$. Zamiana $A[i]\leftrightarrow A[j]$
+to złożenie bieżącej permutacji z~$(i\;j)$.
+\end{teoria}
+
+% ---------------------------------------------------------------------
+\subsection{Zadanie 7. Permute-First}
+\begin{tresc}
+\begin{algorithmic}[1]
+\State $n\gets A.\mathit{length}$
+\For{$i\gets1$ \textbf{to} $n-1$}
+  \State swap$(A[i],A[\textsc{Random}(i+1,n)])$
+\EndFor
+\end{algorithmic}
+\end{tresc}
+
+\begin{intuicja}
+Różnica w~stosunku do Knutha: $A[i]$ \emph{nie może} zostać na miejscu
+(losujemy z~$[i+1,n]$, a nie $[i,n]$). To jest \emph{algorytm Sattolo}.
+Wybory są $(n-1)\cdot(n-2)\cdots1=(n-1)!$ --- dokładnie tyle, ile jest
+$n$-cykli. Okazuje się, że każdy ciąg wyborów daje inny $n$-cykl.
+Przykład $n=3$: wychodzą tylko $[2,3,1]$ i~$[3,1,2]$.
+\end{intuicja}
+\formalnie
+Wynik to złożenie $P_n=t_1\circ t_2\circ\dots\circ t_{n-1}$, gdzie
+$t_i=(i\;j_i)$, $j_i\in\{i+1,\dots,n\}$ --- wylosowane indeksy.
+
+\begin{lemat}
+Dla każdego ciągu $(j_1,\dots,j_{n-1})$ z~$j_i>i$ permutacja $P=t_1\circ\cdots\circ t_{n-1}$
+jest $n$-cyklem, a~różne ciągi dają różne $P$.
+\end{lemat}
+\begin{proof}
+Indukcja po $n$; dla $n=1$ jest tylko identyczność (1-cykl). Niech
+$Q=t_2\circ\dots\circ t_{n-1}$. Wszystkie $t_i$ dla $i\ge2$ działają na
+$\{2..n\}$, więc z~założenia indukcyjnego $Q$ jest $(n-1)$-cyklem na
+$\{2..n\}$, a $Q(1)=1$. Niech $j=j_1$ i~$x=Q^{-1}(j)$. Wtedy $P=t_1\circ Q$ spełnia:
+$P(1)=t_1(1)=j$, $P(x)=t_1(j)=1$, a~dla pozostałych $y$ jest $P(y)=Q(y)$.
+Zatem cykl $Q$: $\dots\to x\to j\to\dots$ zmienia się w~$\dots\to x\to1\to j\to\dots$
+--- to jeden cykl długości $n$.
+\emph{Różnowartościowość:} z~$P$ odczytujemy $j_1=P(1)$, potem
+$Q=t_1\circ P$ (bo $t_1^{-1}=t_1$), a~z~$Q$ --- indukcyjnie $j_2,\dots,j_{n-1}$.
+\end{proof}
+Mamy więc różnowartościowe odwzorowanie ze zbioru $(n-1)!$ ciągów wyborów
+w~zbiór $n$-cykli, który też ma $(n-1)!$ elementów --- to bijekcja. Każdy
+ciąg ma prawd.\ $\frac{1}{(n-1)!}$ (Fakt~\ref{fakt:liczenie}).
+\begin{odpowiedz}
+Generowane są dokładnie wszystkie \textbf{permutacje cykliczne} ($n$-cykle):
+jest ich $(n-1)!$ i~każda wypada z~prawd.\ $\frac{1}{(n-1)!}$ --- rozkład jest
+jednostajny \emph{na tym zbiorze}. Nie jest to losowa permutacja: dla $n\ge2$
+nigdy nie wychodzi np.\ identyczność (żaden element nie zostaje na miejscu).
+Dla $n\ge4$ nie wychodzą też niektóre permutacje bez punktów stałych, np.\ $[2,1,4,3]$.
+\end{odpowiedz}
+
+% ---------------------------------------------------------------------
+\subsection{Zadanie 8. Permute-Second}
+\begin{tresc}
+\begin{algorithmic}[1]
+\State $n\gets A.\mathit{length}$
+\For{$i\gets1$ \textbf{to} $n$}
+  \State swap$(A[i],A[\textsc{Random}(1,n)])$
+\EndFor
+\end{algorithmic}
+\end{tresc}
+
+\begin{intuicja}
+To popularny błąd przy tasowaniu. Losowań jest $n^n$, a~permutacji $n!$.
+Gdyby każda permutacja wypadała tak samo często, $n^n$ musiałoby się dzielić
+przez $n!$, a~dla $n\ge3$ się nie dzieli.
+\end{intuicja}
+\formalnie
+\emph{Zbiór.} Ciągi wyborów Knutha ($j_i\in[i,n]$) są szczególnymi ciągami
+wyborów tego algorytmu ($j_i\in[1,n]$). Knuth osiąga każdą permutację
+(Tw.~\ref{tw:knuth}), więc tu też osiągalna jest \textbf{każda} z~$n!$ permutacji.
+
+\emph{Jednostajność.} Wszystkie $m=n^n$ ciągi są jednakowo prawdopodobne,
+więc permutacja $\pi$ ma prawd.\ $c_\pi/n^n$. Rozkład jednostajny wymagałby
+$c_\pi=n^n/n!$ dla każdego $\pi$, czyli $n!\mid n^n$. Dla $n\ge3$ liczba
+$n-1\ge2$ dzieli $n!$, ale $\gcd(n-1,n^n)=1$ (bo $\gcd(n-1,n)=1$), więc
+$n!\nmid n^n$ --- \textbf{sprzeczność}. Dla $n=1,2$ rozkład jest jednostajny
+(dla $n=2$: z~4 ciągów po 2 dają każdą z~2 permutacji).
+
+Przykład $n=3$ (27 ciągów, pełny przegląd): permutacje $[1,3,2]$, $[2,1,3]$,
+$[2,3,1]$ wypadają z~prawd.\ $\frac5{27}$, a~$[1,2,3]$, $[3,1,2]$, $[3,2,1]$
+z~prawd.\ $\frac4{27}$, zamiast $\frac{1}{6}=\frac{4{,}5}{27}$.
+\begin{odpowiedz}
+Generowane są \textbf{wszystkie} $n!$ permutacje, ale dla $n\ge3$ rozkład
+\textbf{nie} jest jednostajny, bo $n!\nmid n^n$. Dla $n\le2$ jest jednostajny.
+\end{odpowiedz}
+
+% ---------------------------------------------------------------------
+\subsection{Zadanie 9. Permute-Third}
+\begin{tresc}
+\begin{algorithmic}[1]
+\State $n\gets A.\mathit{length}$
+\State niech $B[1:n]$ będzie nową tablicą
+\State $\mathit{offset}\gets\textsc{Random}(1,n)$
+\For{$i\gets1$ \textbf{to} $n$}
+  \State $\mathit{dest}\gets i+\mathit{offset}$
+  \If{$\mathit{dest}>n$} $\mathit{dest}\gets\mathit{dest}-n$ \EndIf
+  \State $B[\mathit{dest}]\gets A[i]$
+\EndFor
+\State \Return $B$
+\end{algorithmic}
+\end{tresc}
+
+\begin{intuicja}
+Algorytm tylko \emph{obraca} tablicę cyklicznie o~$\mathit{offset}$ pozycji.
+Jest jedno losowanie z~$n$ wartości, więc wyników może być co najwyżej $n$.
+To pułapka, bo każdy element trafia na każdą pozycję z~prawd.\ dokładnie
+$\frac1n$, a mimo to wynik nie jest losową permutacją.
+Jednostajne „rozkłady brzegowe” nie wystarczają.
+\end{intuicja}
+\formalnie
+Pozycja docelowa elementu $A[i]$ to $\bigl((i+\mathit{offset}-1)\bmod n\bigr)+1$,
+czyli $B$ to $A$ przesunięta cyklicznie o~$\mathit{offset}$ (dla
+$\mathit{offset}=n$ --- identyczność). Różne wartości $\mathit{offset}\in\{1..n\}$
+dają różne przesunięcia (element $A[1]$ ląduje w~innym miejscu), więc
+osiągalne jest dokładnie $n$ rotacji, każda z~prawd.\ $\frac1n$.
+Dla $n\ge3$ mamy $n<n!$, więc większość permutacji jest nieosiągalna
+(np.\ dla $n=3$: $[a_2,a_1,a_3]$).
+\begin{odpowiedz}
+Generowane są tylko \textbf{rotacje cykliczne} tablicy ($n$ permutacji),
+każda z~prawd.\ $\frac1n$. Rozkład jest jednostajny na zbiorze rotacji, ale
+dla $n\ge3$ nie jest to losowa permutacja (osiągalnych jest $n$ z~$n!$). Dla $n\le2$
+rotacje to wszystkie permutacje, więc wynik jest losową permutacją.
+\end{odpowiedz}
+
+\end{document}

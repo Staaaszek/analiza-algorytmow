@@ -18,6 +18,7 @@ intuicja, rozwiązanie formalne i odpowiedź.
 ```
 zestawy/aaNN/aaNN.tex    rozwiązania zestawu NN
 zestawy/aaNN/tresc.pdf   oryginalna treść zestawu
+wyklady/                 notatki z wykładów (źródło teorii do zestawów)
 common/aa.sty            wspólny styl (pudełka, notacja, tryb telefonu)
 weryfikacja/aaNN.py      numeryczne sprawdzenie wyników z zestawu
 weryfikacja/marginesy.py sprawdza, czy nic nie wystaje poza stronę
