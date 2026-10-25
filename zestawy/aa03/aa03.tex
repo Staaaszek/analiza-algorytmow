@@ -10,42 +10,57 @@ Każde zadanie ma: przepisaną \textbf{treść} (szare pudełko), potrzebną
 formalne} i~\textbf{odpowiedź} (zielone). Wyniki sprawdzono skryptem
 \texttt{weryfikacja/aa03.py} (współczynniki szeregów w~ułamkach, pełne
 przeglądy ciągów, dokładne momenty rozkładów).
+Teoria idzie za wykładem 3 („Szeregi potęgowe i~funkcje tworzące”);
+rzeczy spoza wykładu są oznaczone jako uzupełnienie.
 Notacja probabilistyczna jak na wykładzie 2: $\Pr\{A\}$, $E[X]$.
-\textbf{Funkcji tworzących nie było na dotychczasowych wykładach} ---
-cała teoria poniżej jest więc uzupełnieniem; z~wykładu 2 korzystamy tylko
-z~wartości oczekiwanej i~jej liniowości (zestaw~2, twierdzenie o~liniowości).
 \end{teoria}
 
 % =====================================================================
-\section{Teoria: funkcje tworzące}
+\section{Teoria z wykładu: funkcje tworzące}
 
 \begin{definicja}[Funkcja tworząca]
-Funkcją tworzącą ciągu $(a_n)_{n\ge0}$ nazywamy szereg potęgowy
-$A(x)=\sum_{n\ge0}a_nx^n$. Piszemy $[x^n]A(x)=a_n$ (współczynnik przy $x^n$).
-Dla ciągu dwuindeksowego $a_{n,m}$ analogicznie
-$A(x,y)=\sum_{n,m}a_{n,m}x^ny^m$.
+Funkcją tworzącą ciągu $\langle a_n\rangle=a_0,a_1,\dots$ nazywamy szereg
+potęgowy
+\[
+G(z)=\sum_{n=0}^\infty a_nz^n.
+\]
+W~zadaniach zmienna nazywa się zwykle $x$, a~funkcja $A(x)$, $F(x)$ itp.
+Piszemy $[x^n]A(x)=a_n$ (współczynnik przy $x^n$).
+Dla ciągu dwuindeksowego $a_{n,m}$ analogicznie (uzupełnienie):
+\[
+A(x,y)=\sum_{n,m}a_{n,m}x^ny^m.
+\]
 \end{definicja}
 
 \begin{intuicja}
 Funkcja tworząca to „wieszak” na cały ciąg: ciąg staje się \emph{jednym
 obiektem}, na którym można robić algebrę (dodawać, mnożyć, różniczkować),
-a~potem odczytać współczynniki. Nie obchodzi nas, dla jakich $x$ szereg
-jest zbieżny --- wystarczy, że to szereg \emph{formalny} (zbieżność
-sprawdzamy dopiero, gdy chcemy wstawiać liczby).
+a~potem odczytać współczynniki. Żeby poprawnie traktować $G(z)$ jako
+\emph{funkcję} dla $z\in S$, szereg powinien być zbieżny dla $z\in S$.
+\textbf{W~zastosowaniach} (jak na wykładzie) nie dbamy o~zbieżność ---
+do rozwiązania dochodzimy formalnie, manipulując na szeregach, \textbf{ale}
+na końcu potwierdzamy wynik, np.\ indukcyjnie.
 \end{intuicja}
 
-\begin{fakt}[Słownik operacji]\label{fakt:slownik}
-Dla $A(x)=\sum a_nx^n$, $B(x)=\sum b_nx^n$:
+\begin{fakt}[Przekształcenia funkcji tworzących, z~wykładu]\label{fakt:slownik}
+Dla $A(x)=\sum a_nx^n$, $B(x)=\sum b_nx^n$ (wszystko formalnie):
 \begin{align*}
-A+B&\;\leftrightarrow\;a_n+b_n,\\
-A(x)B(x)&\;\leftrightarrow\;\sum_{k=0}^na_kb_{n-k}\quad(\text{splot}),\\
+pA+qB&\;\leftrightarrow\;pa_n+qb_n,\\
+x^mA(x)&\;\leftrightarrow\;a_{n-m}\quad(\text{przesunięcie; } a_{<0}=0),\\
+A(x)B(x)&\;\leftrightarrow\;\sum_{k=0}^na_kb_{n-k}\quad(\text{iloczyn Cauchy'ego}).
+\end{align*}
+Mnożenie przez liczbę to szczególny przypadek iloczynu Cauchy'ego. Inny
+szczególny przypadek: $b_n=1$ dla wszystkich $n$, $B(x)=\frac1{1-x}$, daje
+\textbf{sumy częściowe}:
+\[
+\frac{A(x)}{1-x}=a_0+(a_0+a_1)x+(a_0+a_1+a_2)x^2+\cdots
+\]
+\emph{Uzupełnienie} --- różniczkowanie i~całkowanie:
+\begin{align*}
 A'(x)&\;\leftrightarrow\;(n+1)\,a_{n+1},\\
 xA'(x)&\;\leftrightarrow\;n\,a_n,\\
-\int_0^xA(t)\,dt&\;\leftrightarrow\;\frac{a_{n-1}}{n}\quad(n\ge1),\\
-xA(x)&\;\leftrightarrow\;a_{n-1}\quad(\text{przesunięcie}).
+\int_0^xA(t)\,dt&\;\leftrightarrow\;\frac{a_{n-1}}{n}\quad(n\ge1).
 \end{align*}
-Ważny szczególny przypadek splotu: mnożenie przez $\frac1{1-x}=\sum x^n$
-daje \textbf{sumy częściowe}, bo $[x^n]\frac{A(x)}{1-x}=\sum_{k=0}^na_k$.
 \end{fakt}
 
 \begin{fakt}[Podstawowe szeregi]\label{fakt:szeregi}
@@ -55,10 +70,169 @@ daje \textbf{sumy częściowe}, bo $[x^n]\frac{A(x)}{1-x}=\sum_{k=0}^na_k$.
 \frac1{(1-x)^2}&=\sum_{n\ge0}(n+1)x^n,&
 (1+x)^m&=\sum_{k}\binom mkx^k.
 \end{align*}
-Drugi wzór to pierwszy po podstawieniu $x\to ax$, trzeci to pochodna
+Pierwszy wzór jak na wykładzie: $G(x)=\sum_{n\ge0}x^n$ i~$xG(x)=\sum_{n\ge1}x^n$,
+więc $(1-x)G(x)=1$. Drugi to pierwszy po podstawieniu $x\to ax$, trzeci to pochodna
 pierwszego: $\bigl(\frac1{1-x}\bigr)'=\frac1{(1-x)^2}=\sum nx^{n-1}$, czwarty
 to wzór dwumianowy.
 \end{fakt}
+
+\subsection*{Przykład z wykładu: wzór zwarty na \texorpdfstring{$F_n$}{F(n)}}
+
+$F_0=0$, $F_1=1$, $F_n=F_{n-1}+F_{n-2}$ dla $n\ge2$. Niech
+$G(z)=\sum_{n\ge0}F_nz^n$. Wtedy $zG(z)$ i~$z^2G(z)$ to funkcje tworzące
+ciągów $\langle F_{n-1}\rangle$ i~$\langle F_{n-2}\rangle$, więc
+$(1-z-z^2)G(z)$ to funkcja tworząca ciągu $\langle F_n-F_{n-1}-F_{n-2}\rangle$.
+Wyrazy od $z^2$ wzwyż znikają z~rekurencji:
+\begin{align*}
+(1-z-z^2)G(z)&=F_0+(F_1-F_0)z+0\cdot z^2+\dots=z,\\
+G(z)&=\frac z{1-z-z^2}.
+\end{align*}
+Mianownik ma pierwiastki $\frac{-1\pm\sqrt5}2$, czyli
+$1-z-z^2=(1-\varphi z)(1-\hat\varphi z)$, gdzie
+\[
+\varphi=\frac{1+\sqrt5}2,\qquad\hat\varphi=1-\varphi=\frac{1-\sqrt5}2.
+\]
+Rozkład na ułamki proste i~$\frac1{1-\varphi z}=1+\varphi z+\varphi^2z^2+\cdots$ dają
+\begin{align*}
+G(z)&=\frac1{\sqrt5}\Bigl(\frac1{1-\varphi z}-\frac1{1-\hat\varphi z}\Bigr)
+=\sum_{n\ge0}\frac{\varphi^n-\hat\varphi^n}{\sqrt5}z^n,\\
+F_n&=\frac{\varphi^n-\hat\varphi^n}{\sqrt5}\qquad\text{(wzór Bineta)}.
+\end{align*}
+Ten sam schemat (rekurencja $\to$ równanie na $G$ $\to$ ułamki proste $\to$
+odczytanie współczynników) stosujemy w~zad.~4 i~9.
+
+\subsection*{Funkcja tworząca prawdopodobieństwa}
+
+\begin{definicja}[z wykładu]\label{def:pgf}
+Niech $X_n$ będzie zmienną losową o~wartościach w~$\{0,1,2,\dots\}$, np.\
+liczbą kroków algorytmu na losowych danych rozmiaru $n$, i~niech
+$p_{nk}=\Pr\{X_n=k\}$. \emph{Funkcja tworząca (rozkładu)
+prawdopodobieństwa} zmiennej $X_n$ to
+\[
+G_n(z)=\sum_{k=0}^\infty p_{nk}z^k.
+\]
+\end{definicja}
+
+\begin{fakt}[z wykładu]\label{fakt:pgf}
+$G_n(1)=1$ (suma prawdopodobieństw) oraz
+\begin{align*}
+E[X_n]&=G_n'(1),\\
+\operatorname{Var}[X_n]&=G_n''(1)+G_n'(1)-G_n'(1)^2.
+\end{align*}
+\end{fakt}
+\begin{proof}
+$G_n'(z)=\sum_{k\ge1}kp_{nk}z^{k-1}$, więc $G_n'(1)=\sum_kkp_{nk}=E[X_n]$.
+Dalej $G_n''(1)=\sum_kk(k-1)p_{nk}$, a~z~definicji
+$\operatorname{Var}[X_n]=\sum_kp_{nk}(k-E[X_n])^2$:
+\begin{align*}
+\operatorname{Var}[X_n]&=\sum_kk^2p_{nk}-2G_n'(1)\sum_kkp_{nk}+G_n'(1)^2\sum_kp_{nk}\\
+&=\sum_kk(k-1)p_{nk}+\sum_kkp_{nk}-G_n'(1)^2\\
+&=G_n''(1)+G_n'(1)-G_n'(1)^2.\qedhere
+\end{align*}
+\end{proof}
+
+Na wykładzie wprowadzono też \emph{formalne operatory} dla dowolnego
+$G(z)=\sum_ka_kz^k$:
+\[
+E(G)=\sum_{k\ge1}k\,a_k,\qquad
+\operatorname{Var}(G)=\sum_{k\ge0}\bigl(k-E(G)\bigr)^2a_k.
+\]
+Jeśli $G$ jest funkcją tworzącą prawdopodobieństwa zmiennej $X$, to
+oczywiście $E[X]=E(G)$ i~$\operatorname{Var}[X]=\operatorname{Var}(G)$.
+
+\begin{lemat}[z wykładu]\label{lem:iloczyn}
+Jeśli $G$, $H$ są funkcjami tworzącymi ciągów $\langle a_n\rangle$,
+$\langle b_n\rangle$ oraz $\sum a_i=\sum b_i=1$, to dla iloczynu
+Cauchy'ego $G\cdot H$:
+\begin{align*}
+E(G\cdot H)&=E(G)+E(H),\\
+\operatorname{Var}(G\cdot H)&=\operatorname{Var}(G)+\operatorname{Var}(H).
+\end{align*}
+\end{lemat}
+\begin{proof}[Dowód (na wykładzie pominięty)]
+Z~Faktu~\ref{fakt:pgf}, zastosowanego formalnie, $E(G)=G'(1)$ i~$\operatorname{Var}(G)=G''(1)+G'(1)-G'(1)^2$
+(dowód nie korzystał z~tego, że $a_k$ to prawdopodobieństwa, tylko z~$G(1)=1$).
+Przy $G(1)=H(1)=1$:
+\begin{align*}
+(GH)'(1)&=G'(1)+H'(1),\\
+(GH)''(1)&=G''(1)+2G'(1)H'(1)+H''(1),
+\end{align*}
+więc
+\begin{align*}
+\operatorname{Var}(GH)&=G''+2G'H'+H''+G'+H'-(G'+H')^2\\
+&=\bigl(G''+G'-G'^2\bigr)+\bigl(H''+H'-H'^2\bigr)
+\end{align*}
+(wszystko w~punkcie 1).
+\end{proof}
+
+\begin{intuicja}
+Iloczyn funkcji tworzących prawdopodobieństwa niezależnych zmiennych $X$, $Y$
+to funkcja tworząca $X+Y$ (bo $\Pr\{X+Y=n\}=\sum_k\Pr\{X=k\}\Pr\{Y=n-k\}$ ---
+dokładnie iloczyn Cauchy'ego). Lemat mówi więc znane: przy niezależności
+wartości oczekiwane i~wariancje się dodają.
+\end{intuicja}
+
+\subsection*{Przykład z wykładu: szukanie maksimum}
+
+Problem sekretarki: znajdź maksimum w~$a[1..n]$.
+\begin{algorithm}[H]
+\caption{\textsc{Max} (z wykładu)}
+\begin{algorithmic}[1]
+\State $\mathit{maxi}\gets1$
+\For{$i\gets2$ \textbf{do} $n$}
+  \If{$a[i]>a[\mathit{maxi}]$}
+     \State $\mathit{maxi}\gets i$ \Comment{$(*)$}
+  \EndIf
+\EndFor
+\State \Return $a[\mathit{maxi}]$
+\end{algorithmic}
+\end{algorithm}
+(To \textsc{Zatrudnij} z~zestawu~2, tyle że start od $\mathit{maxi}=1$,
+więc $X_n$ to liczba zatrudnień minus 1.) Dane to losowa permutacja $a_1,\dots,a_n$ zbioru
+$[n]$; $X_n$ --- liczba wykonań instrukcji $(*)$.
+
+\emph{Rekurencja na $p_{nk}$.} Niech $c_{nk}$ to liczba permutacji z~$X_n=k$,
+czyli $p_{nk}=c_{nk}/n!$. Jeśli $a_n=n$, to $X_n$ jest o~1 większe niż dla
+$a_1,\dots,a_{n-1}$; jeśli $a_n\ne n$ ($n-1$ wyborów $a_n$), to takie samo.
+Zatem
+\begin{align*}
+c_{nk}&=c_{n-1,k-1}+(n-1)\,c_{n-1,k},\\
+p_{nk}&=\frac1n\,p_{n-1,k-1}+\frac{n-1}n\,p_{n-1,k},
+\end{align*}
+oraz $p_{1k}=I\{k=0\}$ (dla $n=1$ pętla się nie wykonuje).
+
+\emph{Funkcja tworząca.} $G_1(z)=1$, a~dla $n>1$, mnożąc rekurencję przez
+$z^k$ i~sumując (pierwszy składnik to przesunięcie o~1):
+\[
+G_n(z)=\frac zn\,G_{n-1}(z)+\frac{n-1}n\,G_{n-1}(z)=\frac{z+n-1}n\,G_{n-1}(z).
+\]
+($G_n$ to wielomian, bo $p_{nk}=0$ dla $k\ge n$.)
+
+\emph{Wartość oczekiwana.} Pochodna iloczynu i~$G_{n-1}(1)=1$:
+\[
+G_n'(1)=\frac1n\cdot1+1\cdot G_{n-1}'(1),\qquad G_1'(1)=0,
+\]
+więc $E[X_n]=G_n'(1)=\sum_{k=2}^n\frac1k=H_n-1$ ($-1$, bo iterujemy od $i=2$).
+
+\emph{Wariancja.} Rozwijając rekurencję,
+\[
+G_n(z)=\frac{z+n-1}n\cdot\frac{z+n-2}{n-1}\cdots\frac{z+1}2\cdot G_1(z)
+=\prod_{k=2}^nQ_k(z),
+\]
+gdzie $Q_k(z)=\frac{z+k-1}k$. Każde $Q_k$ ma sumę współczynników $Q_k(1)=1$,
+$Q_k'=\frac1k$, $Q_k''=0$, więc $E(Q_k)=\frac1k$,
+$\operatorname{Var}(Q_k)=0+\frac1k-\frac1{k^2}$. Z~Lematu~\ref{lem:iloczyn}:
+\begin{align*}
+E[X_n]&=\sum_{k=2}^n\frac1k=H_n-1,\\
+\operatorname{Var}[X_n]&=\sum_{k=2}^n\Bigl(\frac1k-\frac1{k^2}\Bigr)
+=H_n-H_n^{(2)},
+\end{align*}
+gdzie $H_n^{(2)}=\sum_{k=1}^n\frac1{k^2}\to\frac{\pi^2}6$. Zatem
+$\operatorname{Var}[X_n]=\ln n+\gamma-\frac{\pi^2}6+o(1)$ ($\gamma\approx0{,}577$
+--- stała Eulera).
+\emph{Sens:} $Q_k$ to funkcja tworząca indykatora „$a_k$ jest maksimum
+spośród $a_1,\dots,a_k$” (prawd.\ $\frac1k$); te indykatory są niezależne
+i~$X_n$ jest ich sumą.
 
 % =====================================================================
 \section{Zadanie 1. Funkcja tworząca ciągu $1/n$}
@@ -184,7 +358,8 @@ $L_{n+2}=L_{n+1}+L_n$).
 \end{tresc}
 
 \begin{teoria}[Funkcja tworząca liczb Lucasa]
-Niech $L(x)=\sum_{n\ge0}L_nx^n$. Z~rekurencji $L_n=L_{n-1}+L_{n-2}$ dla
+Tak jak dla $F_n$ w~przykładzie z~wykładu:
+niech $L(x)=\sum_{n\ge0}L_nx^n$. Z~rekurencji $L_n=L_{n-1}+L_{n-2}$ dla
 $n\ge2$:
 \[
 L(x)-xL(x)-x^2L(x)=L_0+(L_1-L_0)x=2-x,
@@ -318,19 +493,16 @@ losowej $X$. Ponadto wyznacz wartość oczekiwaną oraz wariancję zmiennej $X$.
 \end{tresc}
 
 \begin{teoria}[Funkcja tworząca prawdopodobieństwa]\label{teoria:pgf}
-Dla $X$ o~wartościach w~$\{0,1,2,\dots\}$ niech
-$F(z)=\sum_{j\ge0}\Pr\{X=j\}z^j=E[z^X]$. Wtedy $F(1)=1$ oraz
-$G(t)=E[e^{tX}]=F(e^t)$. Wartości oczekiwane z~\emph{silni} potęg:
-\begin{align*}
-F'(1)&=\sum_jj\Pr\{X=j\}=E[X],\\
-F''(1)&=\sum_jj(j-1)\Pr\{X=j\}=E[X(X-1)],
-\end{align*}
-więc ($E[X^2]=E[X(X-1)]+E[X]$)
+To funkcja z~Definicji~\ref{def:pgf} (na wykładzie $G_n(z)$, w~treści
+zadań $F(z)$, bo $G(t)$ to tu funkcja tworząca momentów):
+$F(z)=\sum_{j\ge0}\Pr\{X=j\}z^j=E[z^X]$. Z~Faktu~\ref{fakt:pgf}
 \[
 E[X]=F'(1),\qquad
-\operatorname{Var}X=F''(1)+F'(1)-F'(1)^2.
+\operatorname{Var}X=F''(1)+F'(1)-F'(1)^2,
 \]
-Zgodnie z~regułą łańcuchową $G'(0)=F'(1)$ i~$G''(0)=F''(1)+F'(1)$ --- to
+bo $F'(1)=E[X]$ i~$F''(1)=E[X(X-1)]$ („silniowe” momenty).
+Ponadto $G(t)=E[e^{tX}]=F(e^t)$, więc z~reguły łańcuchowej
+$G'(0)=F'(1)$ i~$G''(0)=F''(1)+F'(1)$ --- to
 te same liczby co w~zad.~5. (Pochodne w~$z=1$ biorą się jako pochodne
 szeregu; dla nas wszystkie szeregi mają promień zbieżności $>1$ albo są
 wielomianami.)
@@ -385,7 +557,7 @@ $q=1-p$ --- funkcja tworząca sama się „zwija”.
 Zmienna $X$ to liczba sukcesów w~$n$ niezależnych próbach, a~$z^X=\prod_iz^{X_i}$ dla
 indykatorów prób, więc $F(z)=(q+pz)^n$ to $n$-ta potęga funkcji pojedynczej
 próby (tu: niezależność zamienia sumę zmiennych na iloczyn funkcji
-tworzących).
+tworzących --- intuicja do Lematu~\ref{lem:iloczyn}).
 \end{intuicja}
 
 \formalnie
@@ -413,6 +585,11 @@ W~$z=1$ mamy $q+p=1$, więc $F'(1)=np$, $F''(1)=n(n-1)p^2$ i
 &=\frac{npqe^t}{(q+pe^t)^2}.
 \end{align*}
 Przy $t=0$ ($q+p=1$) dostajemy $E[X]=np$, $\operatorname{Var}X=npq$ \checkmark.
+
+\emph{Trzeci sposób} (Lemat~\ref{lem:iloczyn} z~wykładu): $F=Q^n$ dla
+$Q(z)=q+pz$, a~$Q(1)=1$, $Q'=p$, $Q''=0$, więc $E(Q)=p$,
+$\operatorname{Var}(Q)=0+p-p^2=pq$. Iloczyn $n$ kopii daje
+$E[X]=np$ i~$\operatorname{Var}X=npq$ \checkmark.
 \begin{odpowiedz}
 \begin{align*}
 F(z)&=(1-p+pz)^n,&
@@ -574,9 +751,9 @@ $h_n=\frac{(n+1)L_{n+1}-F_{n+1}}5$. Zatem
 E[M]=\frac{h_n}{F_{n+1}}=\frac15\Bigl(2(n+1)\frac{F_{n+2}}{F_{n+1}}-(n+2)\Bigr).
 \]
 
-\emph{Asymptotyka.} Niech $\varphi=\frac{1+\sqrt5}2$, $\psi=\frac{1-\sqrt5}2$
+\emph{Asymptotyka.} Niech $\varphi=\frac{1+\sqrt5}2$, $\psi=\hat\varphi=\frac{1-\sqrt5}2$
 (pierwiastki $t^2=t+1$, $|\psi|<1$). Wzór Bineta $F_k=\frac{\varphi^k-\psi^k}{\sqrt5}$
-(prawa strona spełnia tę samą rekurencję co $F_k$ i~zgadza się dla $k=0,1$) daje
+(przykład z~wykładu) daje
 \[
 F_{k+1}-\varphi F_k=\frac{\psi^k(\varphi-\psi)}{\sqrt5}=\psi^k,
 \]

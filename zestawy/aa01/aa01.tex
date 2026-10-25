@@ -10,10 +10,13 @@ Każde zadanie ma: przepisaną \textbf{treść} (szare pudełko), potrzebną
 formalne} i~\textbf{odpowiedź} (zielone). Wyniki zostały sprawdzone
 numerycznie skryptem \texttt{weryfikacja/aa01.py}. $\lg=\log_2$.
 Definicje $\O,\Omega,\Theta$ i~$\lgs$ --- patrz zestaw~0.
+Teoria idzie za wykładem 1 („Analiza algorytmów «dziel i~zwyciężaj».
+Rozwiązywanie równań rekurencyjnych”); rzeczy spoza wykładu są oznaczone
+jako uzupełnienie.
 \end{teoria}
 
 % =====================================================================
-\section{Teoria: rekurencje „dziel i zwyciężaj”}
+\section{Teoria z wykładu: rekurencje „dziel i zwyciężaj”}
 
 Algorytm, który problem rozmiaru $n$ dzieli na $a$ podproblemów rozmiaru
 $n/b$, rozwiązuje je rekurencyjnie i~łączy wyniki kosztem $f(n)$, ma czas
@@ -21,48 +24,203 @@ $n/b$, rozwiązuje je rekurencyjnie i~łączy wyniki kosztem $f(n)$, ma czas
 T(n) = a\,T(n/b) + f(n).
 \]
 
-\begin{definicja}[Drzewo rekursji]
-Rysujemy drzewo: korzeń to wywołanie dla $n$ z~kosztem własnym $f(n)$,
-jego dzieci to wywołania rekurencyjne. Na głębokości $i$ jest $a^i$ węzłów
-o~rozmiarze $n/b^i$, każdy kosztuje $f(n/b^i)$. Drzewo ma
-$\log_b n$ poziomów i~$a^{\log_b n}=n^{\log_b a}$ liści. $T(n)$ to suma
-kosztów wszystkich węzłów:
-\[
-T(n) = \underbrace{\Theta\bigl(n^{\log_b a}\bigr)}_{\text{liście}} + \sum_{i=0}^{\log_b n-1} a^i f(n/b^i).
-\]
-\end{definicja}
+\subsection*{Twierdzenie o rekurencji uniwersalnej --- wersja podstawowa}
 
 \begin{twierdzenie}[O rekurencji uniwersalnej, \emph{Master Theorem}]\label{tw:master}
-Niech $a\ge1$, $b>1$ będą stałymi, $f$ asymptotycznie dodatnia,
-$T(n)=aT(n/b)+f(n)$ (gdzie $n/b$ może oznaczać $\floor{n/b}$ lub $\ceil{n/b}$).
-Oznaczmy $p=\log_b a$ (\emph{wykładnik krytyczny}).
+Niech $a\ge1$, $b>1$ będą stałymi, $f$ asymptotycznie dodatnia oraz
+\begin{align*}
+T(n)&=aT(n/b)+f(n)&&\text{dla }n\ge n_0>1,\\
+T(n)&=\Theta(1)&&\text{dla }1\le n<n_0.
+\end{align*}
+$f$ to \emph{funkcja wymuszająca} (\emph{driving function}),
+a~$n^{\log_ba}$ --- \emph{funkcja wododziałowa} (\emph{watershed function}).
+Oznaczmy $p=\log_b a$ (\emph{wykładnik krytyczny}; na wykładzie w~dowodzie $d$).
 \begin{enumerate}
 \item Jeśli $f(n)=\O(n^{p-\varepsilon})$ dla pewnego $\varepsilon>0$, to $T(n)=\Theta(n^{p})$.
-\item Jeśli $f(n)=\Theta(n^{p}\lg^k n)$ dla pewnej stałej $k\in\R$, to
-\begin{enumerate}[label=(\alph*)]
-\item dla $k>-1$:\quad $T(n)=\Theta(n^{p}\lg^{k+1}n)$;
-\item dla $k=-1$:\quad $T(n)=\Theta(n^{p}\lg\lg n)$;
-\item dla $k<-1$:\quad $T(n)=\Theta(n^{p})$.
-\end{enumerate}
-(Podstawowa wersja z~podręcznika Cormena, 3.~wyd., to tylko $k=0$; 4.~wyd.\
-podaje (a) dla $k\ge0$. Przypadki (b) i~(c) wypełniają lukę między przypadkiem 1 a~2.)
+\item Jeśli $f(n)=\Theta(n^{p})$, to $T(n)=\Theta(n^{p}\lg n)$.
 \item Jeśli $f(n)=\Omega(n^{p+\varepsilon})$ dla pewnego $\varepsilon>0$ \textbf{oraz} spełniony jest
-\emph{warunek regularności}: $a f(n/b)\le c f(n)$ dla pewnej stałej $c<1$ i~wszystkich dostatecznie
-dużych $n$, to $T(n)=\Theta(f(n))$.
+\emph{warunek regularności}: $a f(n/b)\le c f(n)$ dla $n\ge n_1$, gdzie $n_1$, $c$
+to stałe i~$c<1$, to $T(n)=\Theta(f(n))$.
 \end{enumerate}
 \end{twierdzenie}
+
+\begin{uwaga}[z wykładu]
+\begin{enumerate}
+\item $T(n)$ jest określone dla $n\in\N$, więc twierdzenie ma dwa warianty:
+$\frac nb$ rozumiane jako $\floor{n/b}$ albo jako $\ceil{n/b}$. Zachodzi w~obu.
+\item Warunek regularności implikuje $f(n)=\Omega(n^{p+\varepsilon})$ dla
+pewnego $\varepsilon>0$ (ćwiczenie --- to zad.~9).
+\item Przypadki 1, 2, 3 ustalamy, porównując asymptotyczną szybkość wzrostu
+funkcji wododziałowej i~wymuszającej. Różnica musi być
+\emph{wielomianowa} (w~przypadku 3 dochodzi warunek regularności).
+\end{enumerate}
+\end{uwaga}
 
 \begin{intuicja}
 Porównujemy $f(n)$ (koszt w~korzeniu) z~$n^{\log_b a}$ (koszt liści).
 \begin{enumerate}
 \item Liście „ważą” wielomianowo więcej --- koszty poziomów rosną
 geometrycznie w~dół drzewa, dominuje ostatni poziom: $\Theta(n^p)$.
-\item Remis (z~dokładnością do logarytmów) --- każdy z~$\approx\lg n$ poziomów
-kosztuje mniej więcej tyle samo, stąd dodatkowy czynnik $\lg n$.
+\item Remis --- każdy z~$\approx\log_b n$ poziomów
+kosztuje tyle samo, stąd dodatkowy czynnik $\lg n$.
 \item Korzeń waży wielomianowo więcej --- koszty maleją geometrycznie w~dół,
 dominuje korzeń: $\Theta(f(n))$. Warunek regularności to dokładnie
-„koszt poziomu $i+1$ jest $\le c\,\cdot$ koszt poziomu $i$”.
+„koszt poziomu $j+1$ jest $\le c\,\cdot$ koszt poziomu $j$”.
 \end{enumerate}
+\end{intuicja}
+
+\textbf{Przykłady z~wykładu.}
+\begin{itemize}
+\item $T(n)=T(\frac34n)+1$: $p=\log_{4/3}1=0$, $f=\Theta(n^0)$ --- przypadek 2,
+$T(n)=\Theta(\lg n)$.
+\item $T(n)=2T(\frac n2)+n\lg n$: $p=1$, $f(n)=n\lg n$ jest większa od $n$,
+ale \emph{nie wielomianowo} ($n\lg n=o(n^{1+\varepsilon})$) --- twierdzenia
+(w~wersji podstawowej) nie da się zastosować.
+\item $T(n)=3T(\frac n2)+n\lg n$: $p=\lg3\approx1{,}585$,
+$f=\O(n^{1{,}5})$ --- przypadek 1, $T(n)=\Theta(n^{\lg 3})$.
+\item $T(n)=T(\frac n2)+\frac n{\lg n}$: $p=0$, $f=\Omega(n^{1/2})$,
+regularność: $\frac{n/2}{\lg n-1}\le\frac23\cdot\frac n{\lg n}$ dla $\lg n\ge4$
+--- przypadek 3, $T(n)=\Theta(n/\lg n)$.
+\item $T(n)=4T(\frac n2)+\frac{n^2}{\lg n}$: $p=2$, $f(n)<n^2$, ale nie
+wielomianowo --- nie da się (por.\ zad.~3).
+\end{itemize}
+
+\subsection*{Dowód (jak na wykładzie)}
+
+\textbf{Wariant 0: $n=b^m$} (na wykładzie $n=b^k$), czyli $m=\log_bn$.
+
+\begin{lemat}[Le\,0, drzewo rekursji]\label{lem:le0}
+Niech $a\ge1$, $b>1$, $f$ określona tylko dla $n=b^m$,
+$T(1)=\Theta(1)$, $T(n)=aT(n/b)+f(n)$ dla $n>1$. Wtedy
+\[
+T(n)=\Theta(n^p)+g(n),\qquad g(n)=\sum_{j=0}^{m-1}a^jf\Bigl(\frac n{b^j}\Bigr).
+\]
+\end{lemat}
+\begin{proof}
+Rysujemy \emph{drzewo rekursji}: korzeń to wywołanie dla $n$ z~kosztem
+własnym $f(n)$, jego $a$ dzieci to wywołania rekurencyjne. Na głębokości $j$
+jest $a^j$ węzłów rozmiaru $n/b^j$, razem kosztują $a^jf(n/b^j)$. Drzewo
+ma głębokość $m=\log_bn$, a~liści (każdy $\Theta(1)$) jest
+\[
+a^m=a^{\log_bn}=a^{\log_ba\cdot\log_an}=n^{\log_ba}=n^p.
+\]
+Suma kosztów węzłów wewnętrznych to $g(n)$.
+\end{proof}
+
+\begin{lemat}[Le\,1]\label{lem:le1}
+$f(n)=\O(n^{p-\varepsilon})$, $\varepsilon>0$ $\Longrightarrow$ $g(n)=\O(n^p)$.
+\end{lemat}
+\begin{proof}
+Z~założenia $f(n/b^j)=\O\bigl((n/b^j)^{p-\varepsilon}\bigr)$, więc
+\begin{align*}
+g(n)&=\O\Bigl(\sum_{j=0}^{m-1}a^j\Bigl(\frac n{b^j}\Bigr)^{p-\varepsilon}\Bigr)
+=\O\Bigl(n^{p-\varepsilon}\sum_{j=0}^{m-1}\Bigl(\frac{ab^\varepsilon}{b^p}\Bigr)^j\Bigr)\\
+&\overset{a=b^p}{=}\O\Bigl(n^{p-\varepsilon}\sum_{j=0}^{m-1}(b^\varepsilon)^j\Bigr)
+=\O\Bigl(n^{p-\varepsilon}\,\frac{b^{\varepsilon m}-1}{b^\varepsilon-1}\Bigr)\\
+&\overset{b^m=n}{=}\O\Bigl(n^{p-\varepsilon}\,\frac{n^{\varepsilon}-1}{b^\varepsilon-1}\Bigr)
+=\O\bigl(n^{p-\varepsilon}\cdot\O(n^\varepsilon)\bigr)=\O(n^p).\qedhere
+\end{align*}
+\end{proof}
+Le\,0 i~Le\,1 dają przypadek 1: $T(n)=\Theta(n^p)+\O(n^p)=\Theta(n^p)$.
+
+\begin{lemat}[Le\,2]\label{lem:le2}
+$f(n)=\Theta(n^p)$ $\Longrightarrow$ $g(n)=\Theta(n^p\lg n)$.
+\end{lemat}
+\begin{proof}
+\begin{align*}
+g(n)&=\Theta\Bigl(\sum_{j=0}^{m-1}a^j\Bigl(\frac n{b^j}\Bigr)^p\Bigr)
+=\Theta\Bigl(n^p\sum_{j=0}^{m-1}\Bigl(\frac a{b^p}\Bigr)^j\Bigr)\\
+&=\Theta\Bigl(n^p\sum_{j=0}^{m-1}1^j\Bigr)=\Theta(n^pm)=\Theta(n^p\lg n).\qedhere
+\end{align*}
+\end{proof}
+Le\,2 daje przypadek 2.
+
+\begin{lemat}[Le\,3]\label{lem:le3}
+Jeśli $af(n/b)\le cf(n)$ dla $n\ge b$, gdzie $c<1$ stała, to $g(n)=\O(f(n))$.
+\end{lemat}
+\begin{proof}
+$f(n/b)\le\frac caf(n)$, dalej
+$f(n/b^2)\le\frac caf(n/b)\le\bigl(\frac ca\bigr)^2f(n)$ itd.:
+$f(n/b^j)\le\bigl(\frac ca\bigr)^jf(n)$. Zatem
+\[
+g(n)=\sum_{j=0}^{m-1}a^jf\Bigl(\frac n{b^j}\Bigr)\le f(n)\sum_{j=0}^{m-1}c^j
+\le\frac{f(n)}{1-c}=\O(f(n)).\qedhere
+\]
+\end{proof}
+\emph{Fakt:} $g(n)\ge f(n)$, bo składnik dla $j=0$ to $f(n)$, a~pozostałe są
+dodatnie. Z~Le\,3 i~faktu $g(n)=\Theta(f(n))$, więc w~przypadku 3
+$T(n)=\Theta(n^p)+\Theta(f(n))=\Theta(f(n))$, bo $f(n)=\Omega(n^{p+\varepsilon})$.
+
+\textbf{Warianty 1 i~2: $\ceil{n/b}$ i~$\floor{n/b}$.} Dla
+$T(n)=aT(\ceil{n/b})+f(n)$ oszacowanie „$\Omega$” jest oczywiste
+z~wariantu 0 (sufit tylko zwiększa argumenty), dla $\floor{n/b}$ ---
+oszacowanie „$\O$”. Wykażemy „$\O$” dla sufitu. Rozmiary zadań na kolejnych
+poziomach to $n_0=n$, $n_j=\ceil{n_{j-1}/b}$. Ponieważ $\ceil x\le x+1$:
+\begin{align*}
+n_1&\le\frac nb+1,\qquad n_2\le\frac n{b^2}+\frac1b+1,\ \dots\\
+n_j&\le\frac n{b^j}+\sum_{i=0}^{j-1}\Bigl(\frac1b\Bigr)^i<\frac n{b^j}+\frac b{b-1}.
+\end{align*}
+Dla $j=\floor{\log_bn}$ mamy $b^j>n/b$, więc
+$n_j<b+\frac b{b-1}=\O(1)$ --- na głębokości $\floor{\log_bn}$ rozmiar
+zadania jest już stały. Zatem
+\[
+T(n)=\Theta\bigl(a^{\floor{\log_bn}}\bigr)+\sum_{j=0}^{\floor{\log_bn}-1}a^jf(n_j),
+\]
+gdzie $a^{\floor{\log_bn}}=\Theta(n^p)$ („$\O$”, bo $\floor{\log_bn}\le\log_bn$;
+„$\Omega$”, bo $\floor{\log_bn}\ge\log_bn-1$). Szacujemy sumę $g(n)$:
+\begin{itemize}
+\item \emph{Przypadek 3.} Z~$af(\ceil{n/b})\le cf(n)$ (dla
+$n>b+\frac b{b-1}$), podstawiając $n\leftarrow\ceil{n/b}$, dostajemy
+$a^2f(n_2)\le acf(n_1)\le c^2f(n)$ itd., czyli $a^jf(n_j)\le c^jf(n)$
+--- dalej jak w~Le\,3.
+\item \emph{Przypadek 2.} Niech $\alpha$ będzie stałą z~„$\O$” w~$f=\Theta(n^p)$.
+Dla dostatecznie dużych $n_j$, ponieważ $b^j\le n$,
+\begin{align*}
+f(n_j)&\le\alpha\Bigl(\frac n{b^j}+\frac b{b-1}\Bigr)^p
+=\alpha\Bigl(\frac n{b^j}\Bigl(1+\underbrace{\frac{b^j}n}_{\le1}\cdot\frac b{b-1}\Bigr)\Bigr)^p\\
+&\le\alpha\,\frac{n^p}{a^j}\Bigl(1+\frac b{b-1}\Bigr)^p=\O\Bigl(\frac{n^p}{a^j}\Bigr).
+\end{align*}
+Po wstawieniu do $g(n)$ czynnik $a^j$ się upraszcza, dalej jak w~Le\,2.
+\item \emph{Przypadek 1} analogicznie: $f(n_j)=\O\bigl((n/b^j)^{p-\varepsilon}\bigr)$.
+\end{itemize}
+
+\subsection*{Twierdzenie o rekurencji uniwersalnej --- wersja pełna}
+
+\begin{twierdzenie}[Master Theorem, wersja pełna z~wykładu]\label{tw:masterpelne}
+Niech $a>0$, $b>1$ będą stałymi, $f$ --- funkcja wymuszająca określona
+i~nieujemna dla dostatecznie dużych liczb nieujemnych, $T(n)$ dla $n\in\N$:
+\[
+T(n)=aT(n/b)+f(n),
+\]
+gdzie $aT(n/b)$ oznacza $a'T(\floor{n/b})+a''T(\ceil{n/b})$ dla pewnych
+$a',a''\ge0$, $a'+a''=a$. Wówczas:
+\begin{enumerate}
+\item jeśli istnieje $\varepsilon>0$: $f(n)=\O(n^{p-\varepsilon})$, to $T(n)=\Theta(n^p)$;
+\item jeśli istnieje $k\ge0$: $f(n)=\Theta(n^p\lg^kn)$, to\\
+$T(n)=\Theta(n^p\lg^{k+1}n)$;
+\item jeśli istnieje $\varepsilon>0$: $f(n)=\Omega(n^{p+\varepsilon})$ oraz $f$
+spełnia warunek regularności $af(n/b)\le cf(n)$ dla stałej $c<1$ i~$n\ge n_0$,
+to $T(n)=\Theta(f(n))$.
+\end{enumerate}
+\end{twierdzenie}
+Dowód przypadku 2 (w~wersji dla $n\in\R$) był na wykładzie ćwiczeniem ---
+poniżej (dla $n=b^m$) razem z~rozszerzeniem na $k<0$.
+
+\subsection*{Uzupełnienie (spoza wykładu): przypadek 2 dla \texorpdfstring{$k<0$}{k<0}}
+
+\begin{twierdzenie}[Przypadek 2, wersja rozszerzona]\label{tw:master2}
+Przy oznaczeniach jak wyżej, jeśli $f(n)=\Theta(n^{p}\lg^k n)$ dla pewnej
+stałej $k\in\R$, to
+\begin{enumerate}[label=(\alph*)]
+\item dla $k>-1$:\quad $T(n)=\Theta(n^{p}\lg^{k+1}n)$;
+\item dla $k=-1$:\quad $T(n)=\Theta(n^{p}\lg\lg n)$;
+\item dla $k<-1$:\quad $T(n)=\Theta(n^{p})$.
+\end{enumerate}
+(Cormen, 3.~wyd., ma tylko $k=0$, 4.~wyd.\ i~wykład --- (a) dla $k\ge0$.
+Przypadki (b) i~(c) wypełniają lukę między przypadkiem 1 a~2.)
+\end{twierdzenie}
+
+\begin{intuicja}
 W~przypadku 2 o~wyniku decyduje, jak szybko rośnie suma
 $\sum_{j=1}^{m}j^k$ (koszty kolejnych poziomów od dołu):
 dla $k>-1$ rośnie jak $m^{k+1}$, dla $k=-1$ to liczba harmoniczna $H_m\approx\ln m$,
@@ -72,9 +230,9 @@ Luki wciąż istnieją, np.\ $f(n)=n^p\lg\lg n$ (nie jest postaci $n^p\lg^kn$)
 albo $f$ oscylująca między $n^{p-1}$ a~$n^{p+1}$ --- wtedy liczymy drzewem rekursji.
 \end{intuicja}
 
-\begin{proof}[Dowód przypadku 2 (dla $n=b^m$)]
-Na głębokości $i$ jest $a^i$ węzłów rozmiaru $n/b^i$, a~$a^i=(b^i)^p$, więc
-koszt poziomu $i$ to
+\begin{proof}[Dowód (dla $n=b^m$)]
+Z~Le\,0 wystarczy oszacować $g(n)$. Na głębokości $i$ jest $a^i=(b^i)^p$
+węzłów rozmiaru $n/b^i$, więc koszt poziomu $i$ to
 \[
 a^i\,\Theta\Bigl(\Bigl(\frac{n}{b^i}\Bigr)^p\lg^k\frac{n}{b^i}\Bigr)
 =\Theta\bigl(n^p\,((m-i)\lg b)^k\bigr)=\Theta\bigl(n^p(m-i)^k\bigr).
@@ -95,73 +253,136 @@ więc suma to $\Theta(1)$ (jest $\ge1$) i~$T(n)=\Theta(n^p)$.\qedhere
 \end{itemize}
 \end{proof}
 
-\begin{uwaga}[Podłogi, sufity, potęgi $b$]
+\begin{uwaga}[Od potęg $b$ do wszystkich $n$]
 Rachunki prowadzimy zwykle dla $n=b^m$. Jeśli $T$ jest niemalejąca, a~wynik
 $g(n)$ spełnia $g(bn)=\Theta(g(n))$ (tak jest dla funkcji postaci
 $n^\alpha\lg^\beta n$, $n^\alpha\lg\lg n$ itp.), to z~$T(b^m)\le T(n)\le T(b^{m+1})$
 dla $b^m\le n<b^{m+1}$ wynik przenosi się na wszystkie $n$.
 \end{uwaga}
 
-\subsection*{Twierdzenie Akry--Bazziego}
+\subsection*{Rekurencje Akry--Bazziego (z wykładu)}
 
 Twierdzenie o~rekurencji uniwersalnej wymaga podziału na \emph{równe} części.
 Gdy części są różnych rozmiarów (zad.~5--7), używamy uogólnienia.
 
-\begin{twierdzenie}[Akra--Bazzi, 1998; wersja Leightona]\label{tw:akra}
-Niech dla $x\ge x_0$
+\begin{definicja}[Rekurencja Akry--Bazziego, (A--B)]
+\begin{align*}
+&a_1,\dots,a_k\in\R^+,\qquad b_1,\dots,b_k\in\R,\ b_i>1,\\
+&T(n)=f(n)+\sum_{i=1}^ka_iT\Bigl(\frac n{b_i}\Bigr),\\
+&f(n)\ge0,\qquad n\ge n_0,\ n\in\R^+.
+\end{align*}
+\end{definicja}
+
+\begin{definicja}[Warunek wielomianowego wzrostu]
+Funkcja $f$ określona dla $n\ge n_0>0$, $n\in\R$, \emph{rośnie
+wielomianowo}, jeśli istnieje $\hat n>0$ takie, że dla każdego $\phi\ge1$
+istnieje $d>1$ takie, że
 \[
-T(x)=g(x)+\sum_{i=1}^{k}a_i\,T\bigl(b_ix+h_i(x)\bigr),
+\frac{f(n)}d\le f(\psi n)\le d\,f(n)\quad\text{dla } 1\le\psi\le\phi,\ n\ge\hat n.
 \]
-a dla $1\le x<x_0$ (lub innego przedziału startowego) $T(x)=\Theta(1)$. Załóżmy, że:
+\end{definicja}
+
+\begin{intuicja}
+Przeskalowanie argumentu o~ograniczony czynnik ($n\to\psi n$, $\psi\le\phi$)
+zmienia wartość najwyżej o~stały czynnik $d$. Tak zachowuje się
+$n^3\lg n$ ($f(2n)\approx8f(n)$), ale nie $2^n$ ($f(2n)=f(n)^2$).
+\end{intuicja}
+
+\begin{fakt}[z wykładu]\label{fakt:wielom}
 \begin{enumerate}
-\item $k\ge1$ oraz $a_i>0$ i~$0<b_i<1$ to stałe;
-\item $g\ge0$ rośnie \emph{co najwyżej wielomianowo}: istnieją stałe
-$c_1,c_2>0$, że dla $u\in[b_ix,x]$ jest $c_1g(x)\le g(u)\le c_2g(x)$
-(wystarczy np.\ $|g'(x)|=\O(x^c)$ dla pewnego $c$);
-\item zaburzenia są małe: $|h_i(x)|=\O\bigl(x/\lg^2x\bigr)$ --- tu mieszczą się
-wszystkie podłogi i~sufity, bo $|\ceil{b_ix}-b_ix|<1$.
+\item $f$ rośnie wielomianowo $\Rightarrow$ $f(\Theta(n))=\Theta(f(n))$
+(implikacja odwrotna nie zachodzi).
+\item $f$ rośnie wielomianowo $\Rightarrow$ $f$ jest asymptotycznie dodatnia.
+\item Każda $f(n)=\Theta(n^\alpha\lg^\beta n\,(\lg\lg n)^\gamma)$, gdzie
+$\alpha,\beta,\gamma$ to dowolne stałe, rośnie wielomianowo.
 \end{enumerate}
-Niech $p\in\R$ będzie (jedynym) rozwiązaniem równania
+Istnieją jednak funkcje ograniczone wielomianowo, które nie spełniają
+warunku wielomianowego wzrostu --- np.\ $f(n)=2^{2^{\floor{\lg\lg n}}}$
+leży między $\sqrt n$ a~$n$, ale w~punktach $n=2^{2^j}$ skacze
+z~$\sqrt n$ do $n$.
+\end{fakt}
+
+\begin{twierdzenie}[Podłogi i sufity, z~wykładu bez dowodu]\label{tw:akra-sufity}
+Niech $T(n)$, określona dla $n\in\R$, $n\ge0$, spełnia (A--B), a~$T'(n)$,
+określona dla $n\in\N$, spełnia (A--B), w~której każde $T(n/b_i)$ zastąpiono
+przez $T(\ceil{n/b_i})$ lub $T(\floor{n/b_i})$. Jeśli $f$ rośnie
+wielomianowo, to $T'(n)=\Theta(T(n))$.
+\end{twierdzenie}
+
+\begin{fakt}[ogólniejszy, z~wykładu]\label{fakt:akra-h}
+Zastąpienie $T(n/b_i)$ w~(A--B) przez $T\bigl(n/b_i+h_i(n)\bigr)$, gdzie
+$|h_i(n)|=\O(n/\lg^{1+\varepsilon}n)$ dla pewnego $\varepsilon>0$
+i~dostatecznie dużych $n$, nie zmienia asymptotycznego rozwiązania.
+Zastąpienie $T(n/b_i)$ przez $T(\ceil{n/b_i})$ zmienia argument o~mniej
+niż $1\le|h_i(n)|$.
+\end{fakt}
+
+\begin{twierdzenie}[Metoda Akry--Bazziego]\label{tw:akra}
+Dla rekurencji (A--B) z~$f$ rosnącą wielomianowo:
+\begin{enumerate}
+\item wyznaczamy $p\in\R$ takie, że
 \[
-\sum_{i=1}^ka_ib_i^{\,p}=1.
+\sum_{i=1}^k\frac{a_i}{b_i^{\,p}}=1;
 \]
-Wtedy
+\item rozwiązanie ma postać
 \[
-T(x)=\Theta\Bigl(x^p\Bigl(1+\int_1^x\frac{g(u)}{u^{p+1}}\,du\Bigr)\Bigr).
+T(n)=\Theta\Bigl(n^p\Bigl(1+\int_1^n\frac{f(x)}{x^{p+1}}\,dx\Bigr)\Bigr).
 \]
+\end{enumerate}
 \end{twierdzenie}
 
 \begin{uwaga}[Dlaczego $p$ istnieje i~jest jedno]
-Funkcja $\varphi(q)=\sum_ia_ib_i^{\,q}$ jest ciągła i~ściśle malejąca (bo
-$0<b_i<1$), $\varphi(q)\to\infty$ dla $q\to-\infty$ i~$\varphi(q)\to0$ dla
+Funkcja $\varphi(q)=\sum_ia_ib_i^{-q}$ jest ciągła i~ściśle malejąca (bo
+$b_i>1$), $\varphi(q)\to\infty$ dla $q\to-\infty$ i~$\varphi(q)\to0$ dla
 $q\to\infty$. Przyjmuje więc wartość $1$ dokładnie raz. Przydatne: jeśli
 $\varphi(1)<1$, to $p<1$; jeśli $\varphi(1)=1$, to $p=1$.
 \end{uwaga}
 
+\textbf{Przykład z~wykładu} (algorytm magicznych piątek, \emph{median of
+medians}, zad.~7): $T(n)=T(\frac n5)+T(\frac{7n}{10})+n$. Równanie
+$(\frac15)^p+(\frac7{10})^p=1$ daje $p=0{,}83978\ldots$, ale wystarczy
+wiedzieć, że $0<p<1$:
+\begin{align*}
+T(n)&=\Theta\Bigl(n^p\Bigl(1+\int_1^n\frac{x}{x^{p+1}}\,dx\Bigr)\Bigr)
+=\Theta\Bigl(n^p\Bigl(1+\Bigl[\frac{x^{1-p}}{1-p}\Bigr]_1^n\Bigr)\Bigr)\\
+&=\Theta\Bigl(n^p\Bigl(1+\frac{n^{1-p}}{1-p}-\frac1{1-p}\Bigr)\Bigr)\\
+&=\Theta\bigl(n^p\cdot\Theta(n^{1-p})\bigr)=\Theta(n),
+\end{align*}
+bo $1-p$ to dodatnia stała.
+
 \begin{intuicja}
 $p$ to odpowiednik wykładnika krytycznego $\log_ba$: funkcja $x^p$ jest
-„niezmiennikiem” rekurencji bez $g$, bo $\sum_ia_i(b_ix)^p=x^p\sum_ia_ib_i^{\,p}=x^p$.
+„niezmiennikiem” rekurencji bez $f$, bo
+$\sum_ia_i(x/b_i)^p=x^p\sum_ia_ib_i^{-p}=x^p$.
 Czynnik $x^p$ to koszt liści. Całka to ciągła wersja sumowania kosztów
-poziomów drzewa rekursji: węzeł rozmiaru $u$ kosztuje $g(u)$, a~„węzłów
+poziomów drzewa rekursji: węzeł rozmiaru $u$ kosztuje $f(u)$, a~„węzłów
 rozmiaru około $u$” jest około $(x/u)^p$, co daje
-$\sum(x/u)^pg(u)\approx x^p\int g(u)/u^{p+1}\,du$ (dodatkowe $1/u$ bierze się
+$\sum(x/u)^pf(u)\approx x^p\int f(u)/u^{p+1}\,du$ (dodatkowe $1/u$ bierze się
 z~tego, że rozmiary maleją geometrycznie, czyli $du/u$ odpowiada jednemu
-poziomowi). Całkę liczymy od dowolnej stałej, np.\ od 2, gdy $g$ nie jest
+poziomowi). Całkę liczymy od dowolnej stałej, np.\ od 2, gdy $f$ nie jest
 określona w~1 --- to zmienia wynik tylko o~stałą.
 \end{intuicja}
 
 \begin{fakt}[Master Theorem jako szczególny przypadek]
-Dla $T(n)=aT(n/b)+n^{q}\lg^kn$ mamy jeden składnik, $ab^{-p}=1$, czyli $p=\log_ba$, oraz
+Dla $T(n)=aT(n/b)+n^{q}\lg^kn$ mamy jeden składnik, $a/b^p=1$, czyli $p=\log_ba$, oraz
 \[
 \int_2^x\frac{u^q\lg^ku}{u^{p+1}}\,du=\int_2^xu^{q-p-1}\lg^ku\,du.
 \]
 Dla $q<p$ całka jest zbieżna --- $T=\Theta(x^p)$ (przypadek 1). Dla $q>p$ wynosi
-$\Theta(x^{q-p}\lg^kx)$ --- $T=\Theta(x^q\lg^kx)=\Theta(g)$ (przypadek 3).
+$\Theta(x^{q-p}\lg^kx)$ --- $T=\Theta(x^q\lg^kx)=\Theta(f)$ (przypadek 3).
 Dla $q=p$ podstawiamy $v=\lg u$, $du/u=\ln2\,dv$:
 $\int_1^{\lg x}v^k\,dv\cdot\ln 2$, czyli $\Theta(\lg^{k+1}x)$ dla $k>-1$,
 $\Theta(\lg\lg x)$ dla $k=-1$, $\Theta(1)$ dla $k<-1$ --- dokładnie trzy warianty
-przypadku 2. Akra--Bazzi nie potrzebuje przy tym warunku regularności.
+przypadku 2 (Tw.~\ref{tw:master2}). Akra--Bazzi nie potrzebuje przy tym
+warunku regularności.
 \end{fakt}
+
+\begin{uwaga}[Inny zapis w~literaturze]
+W~oryginalnej pracy (Akra, Bazzi 1998) i~u~Leightona rekurencję zapisuje się
+jako $T(x)=g(x)+\sum_ia_iT(b_ix+h_i(x))$ z~$0<b_i<1$ --- to te same
+rekurencje z~$b_i$ zamienionym na $1/b_i$; wtedy $p$ spełnia
+$\sum_ia_ib_i^{\,p}=1$.
+\end{uwaga}
 
 
 % ---------------------------------------------------------------------
@@ -229,10 +450,10 @@ Schemat: (1)~policz $p=\log_ba$; (2)~porównaj $f(n)$ z~$n^p$;
 \begin{odpowiedz}(b) $T(n)=\Theta(n^3)$.\end{odpowiedz}
 
 \textbf{(c)} $a=16$, $b=4$, $p=\log_416=2$. $f(n)=n^2\lg^3n=\Theta(n^p\lg^3 n)$ ---
-przypadek 2(a) w~wersji rozszerzonej, $k=3$.
+przypadek 2 wersji pełnej z~wykładu (Tw.~\ref{tw:masterpelne}), $k=3$.
+(W~wersji podstawowej, z~$f=\Theta(n^p)$, tego przypadku nie ma.)
 
-\emph{Sprawdzenie drzewem rekursji} (gdyby na wykładzie była tylko wersja
-z~$k=0$): dla $n=4^m$ na poziomie $i$ jest $16^i$ węzłów rozmiaru $n/4^i$, więc
+\emph{Sprawdzenie drzewem rekursji} (jak w~dowodzie Le\,2): dla $n=4^m$ na poziomie $i$ jest $16^i$ węzłów rozmiaru $n/4^i$, więc
 koszt poziomu to
 \[
 16^i\Bigl(\frac{n}{4^i}\Bigr)^2\lg^3\frac{n}{4^i} = n^2\bigl(2(m-i)\bigr)^3 = 8n^2(m-i)^3,
@@ -256,8 +477,9 @@ Dlaczego twierdzenia o~rekurencji uniwersalnej nie można zastosować do równan
 $T(n)=9T\bigl(\frac n3\bigr)+\frac{n^2}{\lg n}$? Oszacuj $T(n)$ z~dokładnością do $\Theta$.
 \end{tresc}
 
-\textbf{Dlaczego nie można} (w~wersji twierdzenia z~wykładu / Cormena,
-gdzie w~przypadku 2 jest $k\ge0$). $p=\log_39=2$, $f(n)=n^2/\lg n$.
+\textbf{Dlaczego nie można} (w~wersjach twierdzenia z~wykładu,
+Tw.~\ref{tw:master} i~\ref{tw:masterpelne}, gdzie w~przypadku 2 jest $k\ge0$).
+To ta sama sytuacja co w~przykładzie z~wykładu $4T(\frac n2)+\frac{n^2}{\lg n}$. $p=\log_39=2$, $f(n)=n^2/\lg n$.
 \begin{itemize}
 \item Przypadek 1 wymaga $f(n)=\O(n^{2-\varepsilon})$, ale
 $\frac{f(n)}{n^{2-\varepsilon}}=\frac{n^\varepsilon}{\lg n}\to\infty$ dla każdego $\varepsilon>0$.
@@ -266,7 +488,7 @@ $\frac{f(n)}{n^{2-\varepsilon}}=\frac{n^\varepsilon}{\lg n}\to\infty$ dla każde
 \end{itemize}
 $f$ jest mniejsza od $n^p$, ale tylko o~czynnik logarytmiczny, a~nie
 wielomianowy --- wpada w~lukę między przypadkiem 1 i~2. Dokładnie tę lukę
-zamyka przypadek 2(b) rozszerzonego twierdzenia ($k=-1$), który od razu daje
+zamyka przypadek 2(b) rozszerzonego twierdzenia (Tw.~\ref{tw:master2}, $k=-1$), który od razu daje
 $\Theta(n^2\lg\lg n)$; poniżej liczymy to bezpośrednio.
 
 \begin{intuicja}
@@ -285,9 +507,9 @@ S(m)=S(m-1)+\frac{1}{m\lg3}\ \Longrightarrow\ S(m)=S(0)+\frac{H_m}{\lg 3}.
 Zatem $T(3^m)=9^m\bigl(T(1)+H_m/\lg3\bigr) = n^2\bigl(\Theta(1)+\Theta(\lg m)\bigr)$
 (zestaw 0, zad.~6: $H_m=\Theta(\ln m)$). Ponieważ $m=\log_3n$, mamy
 $\lg m=\lg\lg n-\lg\lg3=\Theta(\lg\lg n)$. Przejście do dowolnych $n$ ---
-uwaga o~podłogach i~sufitach.
+uwaga „Od potęg $b$ do wszystkich $n$”.
 
-\emph{Sprawdzenie Akrą--Bazzim} (Tw.~\ref{tw:akra}). $9\cdot(1/3)^p=1$ daje $p=2$, a
+\emph{Sprawdzenie Akrą--Bazzim} (Tw.~\ref{tw:akra}). $9/3^p=1$ daje $p=2$, a
 \[
 \int_2^x\frac{u^2/\lg u}{u^3}\,du=\int_2^x\frac{du}{u\lg u}=\ln2\,\bigl(\ln\lg x-\ln\lg 2\bigr)=\Theta(\lg\lg x),
 \]
@@ -342,8 +564,8 @@ Przy $q=\ceil{n/a}-1=\Theta(n)$ (bo $a$ to stała) dominuje składnik
 $\frac{ca}{2}q^2=\Theta(n^2)$; pozostałe są $\O(n)$.
 
 \begin{uwaga}
-Akry--Bazziego \emph{nie} da się tu użyć: $T(n-a)$ to $b=1$ z~zaburzeniem $-a$,
-a~twierdzenie wymaga $b_i<1$. Podział „odcinamy stałą” nie zmniejsza
+Akry--Bazziego \emph{nie} da się tu użyć: $T(n-a)$ to $T(n/b)$ z~$b=1$
+i~zaburzeniem $-a$, a~(A--B) wymaga $b_i>1$. Podział „odcinamy stałą” nie zmniejsza
 problemu proporcjonalnie, dlatego wynik ($n^2$) jest zupełnie inny niż w~zad.~5.
 \end{uwaga}
 \begin{odpowiedz}$T(n)=\Theta(n^2)$, dokładniej $T(n)=\frac{c}{2a}n^2+\O(n)$.\end{odpowiedz}
@@ -408,8 +630,8 @@ T(n)&\le K\alpha n\lg(\alpha n)+K(1-\alpha)n\lg((1-\alpha)n)+cn\\
 \end{align*}
 o ile $K\ge c/h(\alpha)$ (z~odpowiednio dobranym warunkiem brzegowym).
 
-\emph{Sprawdzenie Akrą--Bazzim.} $a_1=a_2=1$, $b_1=\alpha$, $b_2=1-\alpha$;
-$\alpha^p+(1-\alpha)^p=1$ dla $p=1$. Całka: $\int_1^x\frac{cu}{u^2}\,du=c\ln x$, więc
+\emph{Sprawdzenie Akrą--Bazzim.} $a_1=a_2=1$, $b_1=\frac1\alpha$, $b_2=\frac1{1-\alpha}$;
+$\sum a_ib_i^{-p}=\alpha^p+(1-\alpha)^p=1$ dla $p=1$. Całka: $\int_1^x\frac{cu}{u^2}\,du=c\ln x$, więc
 $T(x)=\Theta\bigl(x(1+c\ln x)\bigr)=\Theta(x\lg x)$ \checkmark. Wartość $\alpha$ nie
 wpływa na $p$ --- dlatego nierówny podział zmienia tylko stałą.
 \begin{odpowiedz}$T(n)=\Theta(n\lg n)$ (asymptotycznie $T(n)\sim\frac{c}{h(\alpha)}\,n\lg n$).\end{odpowiedz}
@@ -450,8 +672,9 @@ Chcemy $Ksn+kB+n\le Kn+B$, tj.\ $n\bigl(K(1-s)-1\bigr)\ge(k-1)B$. Z~wyboru $K$
 lewa strona to $n(k-1)B\ge(k-1)B$, bo $n\ge n_0\ge1$ \checkmark.
 Każde $n$ jest objęte pewnym $P_j$, więc $T(n)\le Kn+B=\O(n)$.
 
-\emph{Sprawdzenie Akrą--Bazzim.} Wszystkie wagi są równe 1, a współczynniki to
-$b_i=a_i$. Ponieważ $\varphi(1)=\sum a_i<1$, mamy $p<1$; ponadto $\varphi(0)=k\ge1$,
+\emph{Sprawdzenie Akrą--Bazzim.} Wszystkie wagi w~(A--B) są równe 1,
+a~dzielniki to $b_i=1/a_i>1$, więc $\varphi(q)=\sum_ia_i^{\,q}$.
+Ponieważ $\varphi(1)=\sum a_i<1$, mamy $p<1$; ponadto $\varphi(0)=k\ge1$,
 więc $p\ge0$. Całka:
 \[
 \int_1^x\frac{u}{u^{p+1}}\,du=\int_1^xu^{-p}\,du=\frac{x^{1-p}-1}{1-p}=\Theta(x^{1-p}),
@@ -508,8 +731,10 @@ T(n)\le K\Bigl(\frac n5+1\Bigr)+K\Bigl(\frac{3n}4+1\Bigr)+c_2n=Kn-\Bigl(\frac{Kn
 \]
 a $\frac{Kn}{20}-c_2n\ge\frac{Kn}{40}\ge2K$ dla $n\ge80$.
 
-\emph{Sprawdzenie Akrą--Bazzim.} Sufity to zaburzenia $|h_i(n)|<1=\O(n/\lg^2n)$,
-więc można je pominąć. (a) $(1/5)^p+(7/10)^p=1$ daje $p\approx0{,}840$; (b)
+\emph{Sprawdzenie Akrą--Bazzim.} Składnik $\Theta(n)$ rośnie wielomianowo
+(Fakt~\ref{fakt:wielom}), więc sufity można pominąć
+(Tw.~\ref{tw:akra-sufity}; to też zaburzenia $|h_i(n)|<1$ z~Faktu~\ref{fakt:akra-h}).
+(a) to przykład z~wykładu: $(1/5)^p+(7/10)^p=1$ daje $p\approx0{,}840$; (b)
 $(1/5)^p+(3/4)^p=1$ daje $p\approx0{,}911$. W~obu przypadkach $p<1$, bo
 $\varphi(1)<1$. Jak w~zad.~6 dostajemy $T(n)=\Theta(n^p\cdot n^{1-p})=\Theta(n)$ \checkmark.
 \begin{odpowiedz}(a) $T(n)=\Theta(n)$;\quad (b) $T(n)=\Theta(n)$.\end{odpowiedz}
@@ -576,7 +801,8 @@ wartość rośnie co najmniej $\frac ac$ razy. Funkcja $n^{p}$ rośnie dokładni
 $b^p$ razy. Zatem $f$ zachowuje się co najmniej jak $n^{q}$ z~$b^q=\frac ac$,
 tj.\ $q=\log_b\frac ac=\log_ba+\log_b\frac1c$. Ponieważ $c<1$, nadwyżka
 $\varepsilon=\log_b\frac1c$ jest dodatnia. Dlatego w~przypadku 3 warunek
-regularności „zawiera” założenie $f=\Omega(n^{p+\varepsilon})$.
+regularności „zawiera” założenie $f=\Omega(n^{p+\varepsilon})$
+(Uwaga 2 z~wykładu).
 \end{intuicja}
 \formalnie
 Założenia: $a\ge1$, $b>1$, $0<c<1$; nierówność $af(n/b)\le cf(n)$ zachodzi dla

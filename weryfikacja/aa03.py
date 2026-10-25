@@ -234,3 +234,26 @@ psi = (1 - SQ5) / 2
 for k in range(1, 40):
     assert abs(fib_n(k + 1) - phi * fib_n(k) - psi**k) < 1e-6
 print("ok  zad9")
+
+# Przykład z wykładu 3: szukanie maksimum, X_n = liczba wykonań maxi := i
+for n in range(1, 8):
+    dist = {}
+    for perm in itertools.permutations(range(1, n + 1)):
+        maxi, x = 0, 0
+        for i in range(1, n):
+            if perm[i] > perm[maxi]:
+                maxi, x = i, x + 1
+        dist[x] = dist.get(x, 0) + 1
+    tot = math.factorial(n)
+    p = {k: F(c, tot) for k, c in dist.items()}
+    # rekurencja p_nk = 1/n p_{n-1,k-1} + (n-1)/n p_{n-1,k} przez G_n = prod (z+k-1)/k
+    G = [F(1)]
+    for k in range(2, n + 1):
+        G = [F(k - 1, k) * (G[i] if i < len(G) else 0) + F(1, k) * (G[i - 1] if i >= 1 else 0)
+             for i in range(len(G) + 1)]
+    assert all(G[k] == p.get(k, 0) for k in range(len(G))), n
+    E = sum(k * v for k, v in p.items())
+    V = sum(k * k * v for k, v in p.items()) - E * E
+    assert E == H(n) - 1, n
+    assert V == H(n) - sum((F(1, k * k) for k in range(1, n + 1)), F(0)), n
+print("ok  wykład: maksimum (E = H_n - 1, Var = H_n - H_n^(2))")
