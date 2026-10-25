@@ -1,0 +1,593 @@
+\documentclass[11pt]{article}
+\usepackage{aa}
+
+\begin{document}
+\zestaw{3}{Funkcje tworzące}
+
+\begin{teoria}[Jak czytać ten dokument]
+Każde zadanie ma: przepisaną \textbf{treść} (szare pudełko), potrzebną
+\textbf{teorię} (niebieskie), \textbf{intuicję} (żółte), \textbf{rozwiązanie
+formalne} i~\textbf{odpowiedź} (zielone). Wyniki sprawdzono skryptem
+\texttt{weryfikacja/aa03.py} (współczynniki szeregów w~ułamkach, pełne
+przeglądy ciągów, dokładne momenty rozkładów).
+Notacja probabilistyczna jak na wykładzie 2: $\Pr\{A\}$, $E[X]$.
+\textbf{Funkcji tworzących nie było na dotychczasowych wykładach} ---
+cała teoria poniżej jest więc uzupełnieniem; z~wykładu 2 korzystamy tylko
+z~wartości oczekiwanej i~jej liniowości (zestaw~2, twierdzenie o~liniowości).
+\end{teoria}
+
+% =====================================================================
+\section{Teoria: funkcje tworzące}
+
+\begin{definicja}[Funkcja tworząca]
+Funkcją tworzącą ciągu $(a_n)_{n\ge0}$ nazywamy szereg potęgowy
+$A(x)=\sum_{n\ge0}a_nx^n$. Piszemy $[x^n]A(x)=a_n$ (współczynnik przy $x^n$).
+Dla ciągu dwuindeksowego $a_{n,m}$ analogicznie
+$A(x,y)=\sum_{n,m}a_{n,m}x^ny^m$.
+\end{definicja}
+
+\begin{intuicja}
+Funkcja tworząca to „wieszak” na cały ciąg: ciąg staje się \emph{jednym
+obiektem}, na którym można robić algebrę (dodawać, mnożyć, różniczkować),
+a~potem odczytać współczynniki. Nie obchodzi nas, dla jakich $x$ szereg
+jest zbieżny --- wystarczy, że to szereg \emph{formalny} (zbieżność
+sprawdzamy dopiero, gdy chcemy wstawiać liczby).
+\end{intuicja}
+
+\begin{fakt}[Słownik operacji]\label{fakt:slownik}
+Dla $A(x)=\sum a_nx^n$, $B(x)=\sum b_nx^n$:
+\begin{align*}
+A+B&\;\leftrightarrow\;a_n+b_n,\\
+A(x)B(x)&\;\leftrightarrow\;\sum_{k=0}^na_kb_{n-k}\quad(\text{splot}),\\
+xA'(x)&\;\leftrightarrow\;n\,a_n,\\
+\int_0^xA(t)\,dt&\;\leftrightarrow\;\frac{a_{n-1}}{n}\quad(n\ge1),\\
+xA(x)&\;\leftrightarrow\;a_{n-1}\quad(\text{przesunięcie}).
+\end{align*}
+Ważny szczególny przypadek splotu: mnożenie przez $\frac1{1-x}=\sum x^n$
+daje \textbf{sumy częściowe}, bo $[x^n]\frac{A(x)}{1-x}=\sum_{k=0}^na_k$.
+\end{fakt}
+
+\begin{fakt}[Podstawowe szeregi]\label{fakt:szeregi}
+\begin{align*}
+\frac1{1-x}&=\sum_{n\ge0}x^n,&
+\frac1{1-ax}&=\sum_{n\ge0}a^nx^n,\\
+\frac1{(1-x)^2}&=\sum_{n\ge0}(n+1)x^n,&
+(1+x)^m&=\sum_{k}\binom mkx^k.
+\end{align*}
+Drugi wzór to pierwszy po podstawieniu $x\to ax$, trzeci to pochodna
+pierwszego: $\bigl(\frac1{1-x}\bigr)'=\frac1{(1-x)^2}=\sum nx^{n-1}$, czwarty
+to wzór dwumianowy.
+\end{fakt}
+
+% =====================================================================
+\section{Zadanie 1. Funkcja tworząca ciągu $1/n$}
+\begin{tresc}
+Wyznacz zwartą postać funkcji tworzącej
+$F(x)=\sum_{n=1}^{\infty}\frac1nx^n$.
+\end{tresc}
+
+\begin{intuicja}
+Współczynnik $\frac1n$ to „wynik całkowania $x^{n-1}$”:
+$\int_0^xt^{n-1}dt=\frac{x^n}{n}$. Czyli $F$ to całka z~najprostszego szeregu
+$1+x+x^2+\cdots=\frac1{1-x}$. Całka z~$\frac1{1-t}$ to logarytm.
+\end{intuicja}
+
+\formalnie
+Różniczkując wyraz po wyrazie (Fakt~\ref{fakt:slownik}),
+\[
+F'(x)=\sum_{n\ge1}x^{n-1}=\frac1{1-x},\qquad F(0)=0.
+\]
+Stąd, dla $|x|<1$,
+\[
+F(x)=\int_0^x\frac{dt}{1-t}=-\ln(1-x)=\ln\frac1{1-x}.
+\]
+(Kontrola: $-\ln(1-x)=x+\frac{x^2}2+\frac{x^3}3+\cdots$ --- szereg Maclaurina
+logarytmu.)
+\begin{odpowiedz}
+$F(x)=\displaystyle\sum_{n\ge1}\frac{x^n}{n}=\ln\frac1{1-x}$ \quad dla $|x|<1$.
+\end{odpowiedz}
+
+% =====================================================================
+\section{Zadanie 2. Liczby harmoniczne}
+\begin{tresc}
+Korzystając z~poprzedniego zadania, wykaż, że funkcja
+$H(x)=\frac1{1-x}\ln\frac1{1-x}$ jest funkcją tworzącą ciągu liczb
+harmonicznych: $H_n=\sum_{k=1}^n\frac1k$. Następnie wyznacz funkcję
+tworzącą dla ciągu $\bigl(H_{n-1}/n\bigr)_{n\ge1}$.
+\end{tresc}
+
+\begin{intuicja}
+$H_n=\frac11+\frac12+\dots+\frac1n$ to \emph{suma częściowa} ciągu $\frac1k$,
+a~mnożenie przez $\frac1{1-x}$ właśnie sumuje częściowo
+(Fakt~\ref{fakt:slownik}). Ciąg $\frac{H_{n-1}}n$ to z~kolei „$H$ po
+całkowaniu” (dzielenie przez $n$ i~przesunięcie).
+\end{intuicja}
+
+\formalnie
+\emph{Część 1.} Z~zad.~1: $\ln\frac1{1-x}=\sum_{k\ge1}\frac1kx^k$ (czyli
+$b_0=0$, $b_k=\frac1k$). Mnożymy przez $\frac1{1-x}=\sum_{j\ge0}x^j$; ze splotu
+\[
+[x^n]H(x)=\sum_{k=0}^nb_k\cdot1=\sum_{k=1}^n\frac1k=H_n.
+\]
+
+\emph{Część 2.} Niech $a_n=H_n$ dla $n\ge0$ ($H_0=0$). Całkując $H(x)$ od $0$
+do $x$ (Fakt~\ref{fakt:slownik}):
+\[
+\int_0^xH(t)\,dt=\sum_{n\ge1}\frac{H_{n-1}}{n}x^n.
+\]
+Lewą stronę liczymy podstawieniem $u=-\ln(1-t)$, $du=\frac{dt}{1-t}$:
+\[
+\int_0^x\frac{-\ln(1-t)}{1-t}\,dt=\int_0^{-\ln(1-x)}u\,du=\frac12\ln^2(1-x).
+\]
+(Szybka kontrola przez pochodną: $\bigl(\frac12\ln^2(1-x)\bigr)'=
+\ln(1-x)\cdot\frac{-1}{1-x}=H(x)$ \checkmark.)
+\begin{odpowiedz}
+$H(x)=\dfrac1{1-x}\ln\dfrac1{1-x}=\sum_{n\ge0}H_nx^n$ oraz
+\[
+\sum_{n\ge1}\frac{H_{n-1}}{n}x^n=\frac12\ln^2\frac1{1-x}.
+\]
+\end{odpowiedz}
+\emph{Ciekawostka.} $\frac{H_{n-1}}n$ to dokładnie prawdopodobieństwo
+„dokładnie dwóch zatrudnień” z~zadania~2 zestawu~2. Teraz mamy jego funkcję
+tworzącą w~zwartej postaci.
+
+% =====================================================================
+\section{Zadanie 3. Funkcja tworząca dwóch zmiennych}
+\begin{tresc}
+Wyznacz zwartą postać funkcji tworzącej
+\[
+F(x,y)=\sum_{n=0}^{\infty}\sum_{m=0}^{n}m\binom nm x^ny^m.
+\]
+\end{tresc}
+
+\begin{intuicja}
+Gdyby nie czynnik $m$, wewnętrzna suma byłaby dwumianem Newtona
+$\sum_m\binom nmy^m=(1+y)^n$. Czynnik $m$ przy $y^m$ robi operator
+$y\frac{\partial}{\partial y}$ (jak $xA'(x)$ w~słowniku). Potem zostaje zwykły
+szereg geometryczny po $n$.
+\end{intuicja}
+
+\formalnie
+Dla ustalonego $n$ (Fakt~\ref{fakt:szeregi}): $\sum_{m=0}^n\binom nmy^m=(1+y)^n$.
+Zastosujmy do obu stron operator $y\frac{\partial}{\partial y}$:
+\[
+\sum_{m=0}^nm\binom nmy^m=y\cdot n(1+y)^{n-1}.
+\]
+Zatem, sumując po $n$ i~podstawiając $u=x(1+y)$,
+\begin{align*}
+F(x,y)&=\sum_{n\ge1}n\,y(1+y)^{n-1}x^n
+=xy\sum_{n\ge1}n\bigl(x(1+y)\bigr)^{n-1}\\
+&=xy\sum_{n\ge1}nu^{n-1}=\frac{xy}{(1-u)^2}
+=\frac{xy}{(1-x-xy)^2}.
+\end{align*}
+(Szereg $\sum nu^{n-1}=\frac1{(1-u)^2}$ --- Fakt~\ref{fakt:szeregi}; zbieżność dla $|x|(1+|y|)<1$, ale jako
+szereg formalny wzór jest prawdziwy zawsze.)
+
+\emph{Kontrola:} dla $n=2$ współczynnik przy $x^2$ to
+$\sum_m m\binom2my^m=2y+2y^2$; ze wzoru
+$xy\cdot\bigl(1+2x(1+y)+\dots\bigr)$ dostajemy przy $x^2$: $xy\cdot2x(1+y)
+=2x^2y+2x^2y^2$ \checkmark.
+\begin{odpowiedz}
+$F(x,y)=\dfrac{xy}{(1-x-xy)^2}$.
+\end{odpowiedz}
+
+% =====================================================================
+\section{Zadanie 4. Liczby Lucasa}
+\begin{tresc}
+Wykorzystując funkcje tworzące, wykaż, że
+\[
+\sum_{k=0}^{\lfloor n/2\rfloor}\frac{n}{n-k}\binom{n-k}{k}=L_n,
+\]
+gdzie $L_n$ to $n$-ta liczba Lucasa ($L_0=2$, $L_1=1$,
+$L_{n+2}=L_{n+1}+L_n$).
+\end{tresc}
+
+\begin{teoria}[Funkcja tworząca liczb Lucasa]
+Niech $L(x)=\sum_{n\ge0}L_nx^n$. Z~rekurencji $L_n=L_{n-1}+L_{n-2}$ dla
+$n\ge2$:
+\[
+L(x)-xL(x)-x^2L(x)=L_0+(L_1-L_0)x=2-x,
+\]
+bo wszystkie wyrazy od $x^2$ wzwyż się skracają. Zatem
+\[
+L(x)=\frac{2-x}{1-x-x^2},\qquad
+L(x)-2=\frac{x+2x^2}{1-x-x^2}=\sum_{n\ge1}L_nx^n.
+\]
+\end{teoria}
+
+\begin{intuicja}
+Zamiast udowadniać tożsamość indukcją (która wymaga zgadnięcia, co
+wzmocnić), liczymy funkcję tworzącą lewej strony i~widzimy, że to ta sama
+funkcja wymierna. Trzy sztuczki: (1)~sumę po $k$ zamieniamy na sumę po
+parze $(m,k)$, gdzie $m=n-k$, czyli $x^n=x^{m+k}$; (2)~$\sum_k\binom mkx^k=(1+x)^m$;
+(3)~czynnik $\frac nm$ rozbijamy na „$1+\frac km$” i~korzystamy z~tożsamości
+$\frac km\binom mk=\binom{m-1}{k-1}$.
+\end{intuicja}
+
+\formalnie
+Niech $b_n$ oznacza lewą stronę dla $n\ge1$ (dla $n=0$ wyraz $\frac00\binom00$
+jest nieokreślony; tożsamość czytamy dla $n\ge1$). Podstawmy $m=n-k$.
+Wtedy $n=m+k$ i~dla $m\ge1$
+\begin{align*}
+\frac{n}{n-k}\binom{n-k}{k}&=\frac{m+k}{m}\binom mk=\binom mk+\frac km\binom mk\\
+&=\binom mk+\binom{m-1}{k-1}.
+\end{align*}
+(Sumujemy po $k\le\lfloor n/2\rfloor$, czyli $k\le m$ --- dokładnie te $k$,
+dla których $\binom mk\ne0$; analogicznie dla $\binom{m-1}{k-1}$ i~$k\ge1$.)
+Każda para $(m,k)$ z~$m\ge1$, $0\le k\le m$ pojawia się dokładnie raz
+(przy $n=m+k$; dla ustalonego $n$ to skończenie wiele par), więc
+\begin{align*}
+\sum_{n\ge1}b_nx^n
+&=\sum_{m\ge1}\sum_{k}\binom mkx^{m+k}\\
+&\quad+\sum_{m\ge1}\sum_{k\ge1}\binom{m-1}{k-1}x^{m+k}.
+\end{align*}
+Pierwsza suma:
+\begin{align*}
+\sum_{m\ge1}x^m\sum_k\binom mkx^k&=\sum_{m\ge1}x^m(1+x)^m\\
+&=\frac1{1-x(1+x)}-1=\frac1{1-x-x^2}-1.
+\end{align*}
+W~drugiej podstawiamy $m'=m-1$, $k'=k-1$ ($x^{m+k}=x^2x^{m'+k'}$):
+\begin{align*}
+x^2\sum_{m'\ge0}x^{m'}\sum_{k'}\binom{m'}{k'}x^{k'}&=x^2\sum_{m'\ge0}x^{m'}(1+x)^{m'}\\
+&=\frac{x^2}{1-x-x^2}.
+\end{align*}
+Razem
+\begin{align*}
+\sum_{n\ge1}b_nx^n&=\frac{1+x^2}{1-x-x^2}-1\\
+&=\frac{x+2x^2}{1-x-x^2}=\sum_{n\ge1}L_nx^n,
+\end{align*}
+więc $b_n=L_n$ dla $n\ge1$. \qed
+
+\emph{Kontrola:} $n=4$: $k=0$: $\frac44\binom40=1$; $k=1$: $\frac43\binom31=4$;
+$k=2$: $\frac42\binom22=2$; suma $7=L_4$ \checkmark.
+\begin{odpowiedz}
+$\displaystyle\sum_{k}\frac n{n-k}\binom{n-k}k$ ma funkcję tworzącą
+$\dfrac{x+2x^2}{1-x-x^2}$, a~to jest funkcja tworząca $(L_n)_{n\ge1}$.
+(Pomocniczo: $\sum_k\binom{n-k}{k}=F_{n+1}$ ma funkcję tworzącą
+$\frac1{1-x-x^2}$ --- liczby Fibonacciego.)
+\end{odpowiedz}
+
+% =====================================================================
+\section{Zadanie 5. Funkcja tworząca momentów}
+\begin{tresc}
+Funkcją tworzącą momentów zmiennej losowej $X\colon\Omega\to\{x_0,x_1,\ldots\}
+\subseteq\R$ nazywamy szereg $G(t)=\sum_{n=0}^\infty\Pr\{X=x_n\}e^{tx_n}$.
+Korzystając z~funkcji $G(t)$, wyznacz wartość oczekiwaną oraz wariancję $X$.
+\end{tresc}
+
+\begin{teoria}[Wariancja]
+$\operatorname{Var}X=E\bigl[(X-E[X])^2\bigr]$ --- średni kwadrat odchylenia
+od średniej. Z~liniowości wartości oczekiwanej (zestaw~2),
+dla $\mu=E[X]$:
+\begin{align*}
+\operatorname{Var}X&=E[X^2-2\mu X+\mu^2]\\
+&=E[X^2]-2\mu E[X]+\mu^2=E[X^2]-\mu^2.
+\end{align*}
+\end{teoria}
+
+\begin{intuicja}
+$G(t)=E[e^{tX}]$ (średnia z~funkcji $e^{tX}$ --- wprost z~definicji $E$ jako
+$\sum x\Pr\{X=x\}$). Rozwińmy $e^{tX}=1+tX+\frac{t^2X^2}{2}+\cdots$ i~weźmy
+średnią:
+\[
+G(t)=1+E[X]\,t+E[X^2]\frac{t^2}{2!}+E[X^3]\frac{t^3}{3!}+\cdots
+\]
+Moment $E[X^k]$ siedzi więc przy $\frac{t^k}{k!}$ --- stąd nazwa „funkcja
+tworząca momentów”. Żeby go wyciągnąć, $k$ razy różniczkujemy i~wstawiamy
+$t=0$ (wszystkie wyższe wyrazy znikają).
+\end{intuicja}
+
+\formalnie
+Zakładamy, że $G(t)$ jest skończona w~pewnym otoczeniu zera (dla zmiennych
+o~skończonym zbiorze wartości --- zawsze); wtedy $G$ jest szeregiem
+potęgowym zbieżnym bezwzględnie i~można różniczkować wyraz po wyrazie
+(oszacowanie: $e^{|t||x_n|}\le e^{tx_n}+e^{-tx_n}$). Wtedy
+\begin{align*}
+G'(t)&=\sum_n\Pr\{X=x_n\}\,x_ne^{tx_n},\\
+G''(t)&=\sum_n\Pr\{X=x_n\}\,x_n^2e^{tx_n}.
+\end{align*}
+Wstawiając $t=0$ ($e^0=1$):
+\begin{align*}
+G'(0)&=\sum_n x_n\Pr\{X=x_n\}=E[X],\\
+G''(0)&=\sum_n x_n^2\Pr\{X=x_n\}=E[X^2].
+\end{align*}
+Z~wzoru na wariancję
+\[
+\operatorname{Var}X=G''(0)-\bigl(G'(0)\bigr)^2.
+\]
+Przy okazji: $G(0)=\sum_n\Pr\{X=x_n\}=1$.
+
+Wariant: $(\ln G)'(t)=\frac{G'}{G}$ i~$(\ln G)''=\frac{G''G-G'^2}{G^2}$,
+a~w~zerze (bo $G(0)=1$) dostajemy $(\ln G)'(0)=E[X]$ oraz
+$(\ln G)''(0)=\operatorname{Var}X$. Często to wygodniejsze, bo logarytm
+zamienia iloczyny na sumy.
+\begin{odpowiedz}
+$E[X]=G'(0)$, \quad $\operatorname{Var}X=G''(0)-G'(0)^2=(\ln G)''(0)$.
+\end{odpowiedz}
+
+% =====================================================================
+\section{Zadanie 6. Rozkład jednostajny}
+\begin{tresc}
+Zmienna losowa $X$ ma rozkład jednostajny: $\Pr\{X=j\}=\frac1n$ dla
+$j=1,2,\ldots,n$. Przedstaw postać zwartą funkcji tworzącej
+prawdopodobieństwa $F(z)$ oraz funkcji tworzącej momentów $G(t)$ zmiennej
+losowej $X$. Ponadto wyznacz wartość oczekiwaną oraz wariancję zmiennej $X$.
+\end{tresc}
+
+\begin{teoria}[Funkcja tworząca prawdopodobieństwa]\label{teoria:pgf}
+Dla $X$ o~wartościach w~$\{0,1,2,\dots\}$ niech
+$F(z)=\sum_{j\ge0}\Pr\{X=j\}z^j=E[z^X]$. Wtedy $F(1)=1$ oraz
+$G(t)=E[e^{tX}]=F(e^t)$. Wartości oczekiwane z~\emph{silni} potęg:
+\begin{align*}
+F'(1)&=\sum_jj\Pr\{X=j\}=E[X],\\
+F''(1)&=\sum_jj(j-1)\Pr\{X=j\}=E[X(X-1)],
+\end{align*}
+więc ($E[X^2]=E[X(X-1)]+E[X]$)
+\[
+E[X]=F'(1),\qquad
+\operatorname{Var}X=F''(1)+F'(1)-F'(1)^2.
+\]
+Zgodnie z~regułą łańcuchową $G'(0)=F'(1)$ i~$G''(0)=F''(1)+F'(1)$ --- to
+te same liczby co w~zad.~5. (Pochodne w~$z=1$ biorą się jako pochodne
+szeregu; dla nas wszystkie szeregi mają promień zbieżności $>1$ albo są
+wielomianami.)
+\end{teoria}
+
+\begin{intuicja}
+$F(z)$ to „wieszak na rozkład”: współczynnik przy $z^j$ to
+prawdopodobieństwo wartości $j$. Dla rozkładu jednostajnego to po prostu
+wielomian $\frac1n(z+z^2+\dots+z^n)$, czyli suma geometryczna.
+\end{intuicja}
+
+\formalnie
+\begin{align*}
+F(z)&=\frac1n\sum_{j=1}^nz^j=\frac{z\,(z^n-1)}{n\,(z-1)}\qquad(z\ne1),\\
+G(t)&=F(e^t)=\frac1n\sum_{j=1}^ne^{jt}=\frac{e^t\bigl(e^{nt}-1\bigr)}{n\,(e^t-1)}\qquad(t\ne0),
+\end{align*}
+oczywiście $F(1)=G(0)=1$. Pochodne w~$z=1$ (lub $t=0$) z~postaci
+ułamkowej dają wyrażenie $\frac00$, więc rachunek wygodniej prowadzić na
+postaci sumy:
+\begin{align*}
+F'(1)&=\frac1n\sum_{j=1}^nj=\frac{n+1}{2},\\
+F''(1)&=\frac1n\sum_{j=1}^nj(j-1)=\frac1n\cdot\frac{(n-1)n(n+1)}{3}=\frac{n^2-1}{3},
+\end{align*}
+bo $\sum j(j-1)=\sum j^2-\sum j=\frac{n(n+1)(2n+1)}6-\frac{n(n+1)}2
+=\frac{n(n+1)(n-1)}3$. Stąd
+\begin{align*}
+\operatorname{Var}X&=\frac{n^2-1}{3}+\frac{n+1}2-\frac{(n+1)^2}4\\
+&=\frac{4n^2-4+6n+6-3n^2-6n-3}{12}=\frac{n^2-1}{12}.
+\end{align*}
+\begin{odpowiedz}
+\begin{align*}
+F(z)&=\frac{z(z^n-1)}{n(z-1)},&
+G(t)&=\frac{e^t(e^{nt}-1)}{n(e^t-1)},\\
+E[X]&=\frac{n+1}2,&
+\operatorname{Var}X&=\frac{n^2-1}{12}.
+\end{align*}
+\end{odpowiedz}
+
+% =====================================================================
+\section{Zadanie 7. Rozkład dwumianowy}
+\begin{tresc}
+Zmienna losowa $X$ ma rozkład dwumianowy: dla ustalonego $p\in(0,1)$,
+$\Pr\{X=j\}=\binom njp^j(1-p)^{n-j}$ dla $j=0,1,\ldots,n$. Przedstaw postać
+zwartą funkcji tworzącej prawdopodobieństwa $F(z)$ oraz funkcji tworzącej
+momentów $G(t)$ zmiennej losowej $X$. Ponadto wyznacz wartość oczekiwaną
+oraz wariancję zmiennej $X$.
+\end{tresc}
+
+\begin{intuicja}
+Prawdopodobieństwa to wyrazy wzoru dwumianowego dla $(q+pz)^n$, gdzie
+$q=1-p$ --- funkcja tworząca sama się „zwija”.
+Zmienna $X$ to liczba sukcesów w~$n$ niezależnych próbach, a~$z^X=\prod_iz^{X_i}$ dla
+indykatorów prób, więc $F(z)=(q+pz)^n$ to $n$-ta potęga funkcji pojedynczej
+próby (tu: niezależność zamienia sumę zmiennych na iloczyn funkcji
+tworzących).
+\end{intuicja}
+
+\formalnie
+Niech $q=1-p$. Ze wzoru dwumianowego
+\[(a+b)^n=\sum_j\binom nja^jb^{n-j}\]
+dla $a=pz$, $b=q$:
+\begin{align*}
+F(z)&=\sum_{j=0}^n\binom nj(pz)^jq^{n-j}=(q+pz)^n,\\
+G(t)&=F(e^t)=\bigl(q+pe^t\bigr)^n.
+\end{align*}
+Pochodne $F$:
+\begin{align*}
+F'(z)&=np\,(q+pz)^{n-1},\\
+F''(z)&=n(n-1)p^2(q+pz)^{n-2}.
+\end{align*}
+W~$z=1$ mamy $q+p=1$, więc $F'(1)=np$, $F''(1)=n(n-1)p^2$ i
+\begin{align*}
+\operatorname{Var}X&=n(n-1)p^2+np-n^2p^2\\
+&=np-np^2=np(1-p).
+\end{align*}
+\emph{Drugi sposób} (przez $\ln G$, zad.~5): $\ln G=n\ln(q+pe^t)$,
+\begin{align*}
+(\ln G)'&=\frac{npe^t}{q+pe^t},\\
+(\ln G)''&=n\,\frac{pe^t(q+pe^t)-p^2e^{2t}}{(q+pe^t)^2}\\
+&=\frac{npqe^t}{(q+pe^t)^2}.
+\end{align*}
+Przy $t=0$ ($q+p=1$) dostajemy $E[X]=np$, $\operatorname{Var}X=npq$ \checkmark.
+\begin{odpowiedz}
+\begin{align*}
+F(z)&=(1-p+pz)^n,&
+G(t)&=(1-p+pe^t)^n,\\
+E[X]&=np,&
+\operatorname{Var}X&=np(1-p).
+\end{align*}
+\end{odpowiedz}
+
+% =====================================================================
+\section{Zadanie 8. Rozkład geometryczny}
+\begin{tresc}
+Zmienna losowa $X$ ma rozkład geometryczny: dla ustalonego $p\in(0,1)$,
+$\Pr\{Y=j\}=(1-p)^{j-1}p$ dla $j=1,\ldots,n$. Przedstaw postać zwartą
+funkcji tworzącej prawdopodobieństwa $F(z)$ oraz funkcji tworzącej
+momentów $G(t)$ zmiennej losowej $X$. Ponadto wyznacz wartość oczekiwaną
+oraz wariancję zmiennej $X$.
+\end{tresc}
+
+\begin{uwaga}[o~treści]
+W~treści jest literówka: raz $X$, raz $Y$ --- chodzi o~tę samą zmienną.
+Zakres $j=1,\dots,n$ też nie pasuje do rozkładu geometrycznego: suma
+$\sum_{j=1}^n(1-p)^{j-1}p=1-(1-p)^n<1$, więc to nie byłby rozkład
+prawdopodobieństwa. Przyjmuję standardowe $j=1,2,3,\dots$ (liczba prób do
+pierwszego sukcesu, jak w~zestawie~2, fakt o~rozkładzie geometrycznym); wtedy
+$\sum_{j\ge1}(1-p)^{j-1}p=1$.
+\end{uwaga}
+
+\begin{intuicja}
+Prawdopodobieństwa tworzą ciąg geometryczny o~ilorazie $q=1-p$, a~funkcja
+tworząca ciągu geometrycznego to $\frac{1}{1-qz}$. Tylko trzeba doliczyć
+czynnik $pz$ (pierwsza próba kończy się sukcesem, dlatego $j$ zaczyna się
+od 1).
+\end{intuicja}
+
+\formalnie
+Niech $q=1-p$. Ze wzoru na sumę szeregu geometrycznego, dla $|qz|<1$:
+\begin{align*}
+F(z)&=\sum_{j\ge1}q^{j-1}p\,z^j=pz\sum_{i\ge0}(qz)^i=\frac{pz}{1-qz},\\
+G(t)&=F(e^t)=\frac{pe^t}{1-qe^t}\qquad\bigl(t<\ln\tfrac1q\bigr).
+\end{align*}
+Promień zbieżności $F$ to $\frac1q>1$, więc pochodne w~$z=1$ istnieją:
+\begin{align*}
+F'(z)&=\frac{p(1-qz)+pz\cdot q}{(1-qz)^2}=\frac{p}{(1-qz)^2},\\
+F''(z)&=\frac{2pq}{(1-qz)^3}.
+\end{align*}
+Ponieważ $1-q=p$:
+\[
+F'(1)=\frac p{p^2}=\frac1p,\qquad F''(1)=\frac{2pq}{p^3}=\frac{2q}{p^2},
+\]
+\begin{align*}
+\operatorname{Var}X&=\frac{2q}{p^2}+\frac1p-\frac1{p^2}
+=\frac{2q+p-1}{p^2}\\
+&=\frac{2-2p+p-1}{p^2}=\frac{1-p}{p^2}.
+\end{align*}
+Zgadza się to z~zestawem~2, gdzie $E[X]=\frac1p$ wyszło z~sumy ogonów.
+
+\emph{Drugi sposób} (przez $\ln G$): $\ln G=\ln p+t-\ln(1-qe^t)$,
+\[
+(\ln G)'=1+\frac{qe^t}{1-qe^t},\qquad
+(\ln G)''=\frac{qe^t}{(1-qe^t)^2}.
+\]
+Dla $t=0$: $E[X]=1+\frac qp=\frac1p$ i~$\operatorname{Var}X=\frac q{p^2}$ \checkmark.
+\begin{odpowiedz}
+\begin{align*}
+F(z)&=\frac{pz}{1-(1-p)z},&
+G(t)&=\frac{pe^t}{1-(1-p)e^t},\\
+E[X]&=\frac1p,&
+\operatorname{Var}X&=\frac{1-p}{p^2}.
+\end{align*}
+\end{odpowiedz}
+
+% =====================================================================
+\section{Zadanie 9. Ciągi jedynek i dwójek}
+\begin{tresc}
+Niech $G_n$ będzie liczbą ciągów o~wyrazach należących do zbioru $\{1,2\}$,
+których suma jest równa $n$ (oczywiście $G_n=F_{n+1}$, gdzie $F_n$ jest
+$n$-tą liczbą Fibonacciego). Dla $m\ge0$ niech $G_{n,m}$ oznacza liczbę
+takich ciągów zawierających dokładnie $m$ jedynek. Pokaż, jak wykorzystać
+funkcję tworzącą dwóch zmiennych
+\[
+G(x,y)=\sum_{n,m\ge0}G_{n,m}x^ny^m
+\]
+do wyznaczenia oczekiwanej liczby jedynek w~ciągu o~wyrazach sumujących się
+do $n$. Wyznacz tę liczbę jako funkcję zmiennej $n$ z~dokładnością do
+$\O(1)$.
+\end{tresc}
+
+\begin{intuicja}
+\textbf{Krok 1: funkcja tworząca.} Ciąg to dowolnie długie słowo z~liter
+„1” i~„2”. Litera „1” wnosi do sumy 1 i~jedną jedynkę, więc ma wagę $xy$;
+litera „2” wnosi 2 do sumy i~żadnej jedynki: waga $x^2$. Ciąg to
+ciąg liter, więc jego waga to \emph{iloczyn} wag liter, a~wszystkie ciągi
+razem to $\sum_{k\ge0}(xy+x^2)^k=\frac1{1-xy-x^2}$ (suma po długości $k$).
+
+\textbf{Krok 2: średnia z~jednej funkcji.} „Losowy ciąg o~sumie $n$” to
+losowy wybór jednego z~$G_n$ ciągów, każdy z~prawd.\ $\frac1{G_n}$. Liczba
+jedynek $M$ ma wtedy
+\[
+\Pr\{M=m\}=\frac{G_{n,m}}{G_n},\qquad
+E[M]=\frac{\sum_mmG_{n,m}}{G_n}.
+\]
+Licznik to współczynnik przy $x^n$
+w~$\frac{\partial G}{\partial y}$ przy $y=1$ (pochodna po $y$ mnoży przez
+$m$ --- jak w~zad.~3 --- a~$y=1$ sumuje po $m$), mianownik --- w~$G(x,1)$.
+To dokładnie wzór $E[X]=F'(1)$ z~zad.~6, tylko dla
+funkcji tworzącej prawdopodobieństwa $\frac{[x^n]G(x,y)}{G_n}$ zmiennej $M$.
+\end{intuicja}
+
+\formalnie
+\emph{Funkcja tworząca.} Ciągi o~sumie $n$ i~$m$ jedynkach mają $j$ dwójek, gdzie
+$m+2j=n$; wagi wszystkich liter razem dają
+\[
+G(x,y)=\sum_{k\ge0}(xy+x^2)^k=\frac1{1-xy-x^2}.
+\]
+Podstawienie $y=1$: $G(x,1)=\frac1{1-x-x^2}=\sum_nG_nx^n$, czyli
+$G_n=F_{n+1}$ (jak w~treści i~zad.~4: $F_0=0$, $F_1=F_2=1$).
+
+\emph{Wartość oczekiwana.} Niech $h_n=\sum_mmG_{n,m}$ (łączna liczba jedynek
+we wszystkich ciągach). Z~pochodnej
+\begin{align*}
+\frac{\partial G}{\partial y}(x,y)&=\frac{x}{(1-xy-x^2)^2},\\
+D(x):=\frac{\partial G}{\partial y}(x,1)&=\frac{x}{(1-x-x^2)^2}=\sum_nh_nx^n.
+\end{align*}
+Stąd
+\[
+(1-x-x^2)D(x)=\frac{x}{1-x-x^2}=\sum_nF_nx^n
+\]
+(bo $G_{n-1}=F_n$), czyli
+\[
+h_n=h_{n-1}+h_{n-2}+F_n,\qquad h_0=0,\ h_1=1.
+\]
+(To samo wynika wprost kombinatorycznie: ostatni wyraz to 1 albo 2, więc
+$G_{n,m}=G_{n-1,m-1}+G_{n-2,m}$.) Twierdzę, że
+\[
+h_n=\frac{(n+1)L_{n+1}-F_{n+1}}{5}.
+\]
+\emph{Dowód indukcyjny.} Dla $n=0,1$: $\frac{L_1-F_1}5=0$, $\frac{2L_2-F_2}5=1$
+\checkmark. Dla $n\ge2$, po pomnożeniu przez 5:
+\begin{align*}
+5h_n-5h_{n-1}-5h_{n-2}&=(n+1)L_{n+1}-nL_n-(n-1)L_{n-1}\\
+&\quad-F_{n+1}+F_n+F_{n-1}\\
+&=n(L_{n+1}-L_n-L_{n-1})\\
+&\quad+L_{n+1}+L_{n-1}.
+\end{align*}
+Ponieważ $L_{n+1}=L_n+L_{n-1}$ i~$F_{n+1}=F_n+F_{n-1}$, a~$L_{n+1}+L_{n-1}=5F_n$
+(tożsamość z~wzorów Bineta, niżej), wynik to $5F_n$ \checkmark.
+
+Zatem
+\[
+E[M]=\frac{h_n}{G_n}=\frac{(n+1)L_{n+1}-F_{n+1}}{5F_{n+1}}
+=\frac{n+1}{5}\cdot\frac{L_{n+1}}{F_{n+1}}-\frac15.
+\]
+\emph{Asymptotyka.} Niech $\varphi=\frac{1+\sqrt5}2$, $\psi=\frac{1-\sqrt5}2$
+($|\psi|<1$, $\psi=-1/\varphi$). Wzory Bineta: $F_k=\frac{\varphi^k-\psi^k}{\sqrt5}$,
+$L_k=\varphi^k+\psi^k$ (oba ciągi spełniają tę samą rekurencję i~pasują dla
+$k=0,1$). Stąd $L_{k+1}+L_{k-1}=\varphi^{k-1}(\varphi^2+1)+\psi^{k-1}(\psi^2+1)=
+\sqrt5\,(\varphi^k-\psi^k)=5F_k$, bo $\varphi^2+1=\varphi\sqrt5$,
+$\psi^2+1=-\psi\sqrt5$. Ponadto
+\[
+\frac{L_k}{F_k}=\sqrt5\,\frac{1+(\psi/\varphi)^k}{1-(\psi/\varphi)^k}
+=\sqrt5\bigl(1+\O(\varphi^{-2k})\bigr),
+\]
+więc
+\[
+E[M]=\frac{n+1}{\sqrt5}-\frac15+\O\bigl(n\varphi^{-2n}\bigr)
+=\frac{n}{\sqrt5}+\Bigl(\frac1{\sqrt5}-\frac15\Bigr)+o(1).
+\]
+Stała $\frac1{\sqrt5}-\frac15\approx0{,}247$, więc rzeczywiście
+$E[M]=\frac n{\sqrt5}+\O(1)$. Przykłady: $n=2$: ciągi $(1,1),(2)$, średnio $1$;
+$n=3$: $(1,1,1),(1,2),(2,1)$, średnio $\frac53$ --- oba zgodne ze wzorem.
+
+\emph{Sens:} $\frac1{\sqrt5}\approx0{,}447$, czyli w~typowym ciągu jest
+ok.\ $0{,}447n$ jedynek i~$0{,}276n$ dwójek (bo $m+2j=n$).
+\begin{odpowiedz}
+$G(x,y)=\dfrac1{1-xy-x^2}$ i~
+$E[\#\text{jedynek}]=\dfrac{[x^n]\,\partial_yG(x,1)}{[x^n]\,G(x,1)}
+=\dfrac{(n+1)L_{n+1}-F_{n+1}}{5F_{n+1}}=\dfrac{n}{\sqrt5}+\O(1)$.
+\end{odpowiedz}
+
+\end{document}
