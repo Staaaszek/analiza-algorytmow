@@ -39,6 +39,7 @@ Dla $A(x)=\sum a_nx^n$, $B(x)=\sum b_nx^n$:
 \begin{align*}
 A+B&\;\leftrightarrow\;a_n+b_n,\\
 A(x)B(x)&\;\leftrightarrow\;\sum_{k=0}^na_kb_{n-k}\quad(\text{splot}),\\
+A'(x)&\;\leftrightarrow\;(n+1)\,a_{n+1},\\
 xA'(x)&\;\leftrightarrow\;n\,a_n,\\
 \int_0^xA(t)\,dt&\;\leftrightarrow\;\frac{a_{n-1}}{n}\quad(n\ge1),\\
 xA(x)&\;\leftrightarrow\;a_{n-1}\quad(\text{przesunięcie}).
@@ -279,9 +280,11 @@ $t=0$ (wszystkie wyższe wyrazy znikają).
 
 \formalnie
 Zakładamy, że $G(t)$ jest skończona w~pewnym otoczeniu zera (dla zmiennych
-o~skończonym zbiorze wartości --- zawsze); wtedy $G$ jest szeregiem
-potęgowym zbieżnym bezwzględnie i~można różniczkować wyraz po wyrazie
-(oszacowanie: $e^{|t||x_n|}\le e^{tx_n}+e^{-tx_n}$). Wtedy
+o~skończonym zbiorze wartości --- zawsze). Wtedy szereg
+$\sum_n\Pr\{X=x_n\}e^{tx_n}$ można różniczkować wyraz po wyrazie
+(szereg pochodnych jest zbieżny jednostajnie w~mniejszym otoczeniu zera,
+bo $|x_n|^ke^{t x_n}$ szacuje się przez $e^{\delta|x_n|}\le
+e^{\delta x_n}+e^{-\delta x_n}$ z~dokładnością do stałej). Mamy
 \begin{align*}
 G'(t)&=\sum_n\Pr\{X=x_n\}\,x_ne^{tx_n},\\
 G''(t)&=\sum_n\Pr\{X=x_n\}\,x_n^2e^{tx_n}.
@@ -520,8 +523,10 @@ funkcji tworzącej prawdopodobieństwa $\frac{[x^n]G(x,y)}{G_n}$ zmiennej $M$.
 \end{intuicja}
 
 \formalnie
-\emph{Funkcja tworząca.} Ciągi o~sumie $n$ i~$m$ jedynkach mają $j$ dwójek, gdzie
-$m+2j=n$; wagi wszystkich liter razem dają
+\emph{Funkcja tworząca.} Ciągowi o~$m$ jedynkach i~$j$ dwójkach (suma
+$n=m+2j$) przypisujemy jednomian $x^ny^m=(xy)^m(x^2)^j$. Po rozwinięciu
+$(xy+x^2)^k$ każdy składnik odpowiada wyborowi jednej litery na każdej
+z~$k$ pozycji, czyli dokładnie jednemu ciągowi długości $k$, więc
 \[
 G(x,y)=\sum_{k\ge0}(xy+x^2)^k=\frac1{1-xy-x^2}.
 \]
@@ -529,65 +534,73 @@ Podstawienie $y=1$: $G(x,1)=\frac1{1-x-x^2}=\sum_nG_nx^n$, czyli
 $G_n=F_{n+1}$ (jak w~treści i~zad.~4: $F_0=0$, $F_1=F_2=1$).
 
 \emph{Wartość oczekiwana.} Niech $h_n=\sum_mmG_{n,m}$ (łączna liczba jedynek
-we wszystkich ciągach). Z~pochodnej
+we wszystkich ciągach o~sumie $n$), tak że $E[M]=h_n/G_n$. Pochodna po $y$
+mnoży współczynnik przy $y^m$ przez $m$, a~$y=1$ sumuje po $m$:
 \begin{align*}
 \frac{\partial G}{\partial y}(x,y)&=\frac{x}{(1-xy-x^2)^2},\\
 D(x):=\frac{\partial G}{\partial y}(x,1)&=\frac{x}{(1-x-x^2)^2}=\sum_nh_nx^n.
 \end{align*}
+Zostaje odczytać współczynniki $D$. Oznaczmy $Q=1-x-x^2$ i~$\Phi=\frac1Q=\sum_n
+F_{n+1}x^n$. Kwadrat w~mianowniku przypomina pochodną: z~Faktu~\ref{fakt:slownik}
+\[
+\Phi'(x)=\frac{1+2x}{Q^2}=\sum_{n\ge0}(n+1)F_{n+2}\,x^n.
+\]
+Trzeba więc zapisać $\frac x{Q^2}$ przez $\Phi'$ i~$\Phi$. Pomaga
+\emph{dopełnienie do kwadratu}: $Q=\frac54-\bigl(x+\frac12\bigr)^2$, czyli
+\[
+(1+2x)^2+4Q=5.
+\]
 Stąd
 \[
-(1-x-x^2)D(x)=\frac{x}{1-x-x^2}=\sum_nF_nx^n
+\frac1{Q^2}=\frac{(1+2x)^2+4Q}{5Q^2}=\frac{1+2x}5\,\Phi'+\frac45\Phi,
 \]
-(bo $G_{n-1}=F_n$), czyli
-\[
-h_n=h_{n-1}+h_{n-2}+F_n,\qquad h_0=0,\ h_1=1.
-\]
-(To samo wynika wprost kombinatorycznie: ostatni wyraz to 1 albo 2, więc
-$G_{n,m}=G_{n-1,m-1}+G_{n-2,m}$.) Twierdzę, że
-\[
-h_n=\frac{(n+1)L_{n+1}-F_{n+1}}{5}.
-\]
-\emph{Dowód indukcyjny.} Dla $n=0,1$: $\frac{L_1-F_1}5=0$, $\frac{2L_2-F_2}5=1$
-\checkmark. Dla $n\ge2$, po pomnożeniu przez 5:
+a~ponieważ $x=\frac{(1+2x)-1}2$,
 \begin{align*}
-5h_n-5h_{n-1}-5h_{n-2}&=(n+1)L_{n+1}-nL_n-(n-1)L_{n-1}\\
-&\quad-F_{n+1}+F_n+F_{n-1}\\
-&=n(L_{n+1}-L_n-L_{n-1})\\
-&\quad+L_{n+1}+L_{n-1}.
+D=\frac x{Q^2}&=\frac12\,\Phi'-\frac12\cdot\frac1{Q^2}\\
+&=\frac12\Phi'-\frac{1+2x}{10}\Phi'-\frac25\Phi\\
+&=\frac{2-x}5\,\Phi'-\frac25\,\Phi.
 \end{align*}
-Ponieważ $L_{n+1}=L_n+L_{n-1}$ i~$F_{n+1}=F_n+F_{n-1}$, a~$L_{n+1}+L_{n-1}=5F_n$
-(tożsamość z~wzorów Bineta, niżej), wynik to $5F_n$ \checkmark.
+Odczytujemy współczynnik przy $x^n$ ($x\Phi'$ to przesunięcie: $[x^n]\,x\Phi'=nF_{n+1}$):
+\begin{align*}
+h_n&=\frac{2(n+1)F_{n+2}-nF_{n+1}-2F_{n+1}}5\\
+&=\frac{2(n+1)F_{n+2}-(n+2)F_{n+1}}5.
+\end{align*}
+(Kontrola: $h_1=\frac{4\cdot2-3}5=1$, $h_2=\frac{6\cdot3-4\cdot2}5=2$,
+$h_3=\frac{8\cdot5-5\cdot3}5=5$ --- np.\ dla $n=3$ ciągi $(1,1,1),(1,2),(2,1)$
+mają razem $3+1+1=5$ jedynek \checkmark.) Ponieważ $L_{n+1}=F_n+F_{n+2}=
+2F_{n+2}-F_{n+1}$, to samo można zapisać jako
+$h_n=\frac{(n+1)L_{n+1}-F_{n+1}}5$. Zatem
+\[
+E[M]=\frac{h_n}{F_{n+1}}=\frac15\Bigl(2(n+1)\frac{F_{n+2}}{F_{n+1}}-(n+2)\Bigr).
+\]
 
-Zatem
-\[
-E[M]=\frac{h_n}{G_n}=\frac{(n+1)L_{n+1}-F_{n+1}}{5F_{n+1}}
-=\frac{n+1}{5}\cdot\frac{L_{n+1}}{F_{n+1}}-\frac15.
-\]
 \emph{Asymptotyka.} Niech $\varphi=\frac{1+\sqrt5}2$, $\psi=\frac{1-\sqrt5}2$
-($|\psi|<1$, $\psi=-1/\varphi$). Wzory Bineta: $F_k=\frac{\varphi^k-\psi^k}{\sqrt5}$,
-$L_k=\varphi^k+\psi^k$ (oba ciągi spełniają tę samą rekurencję i~pasują dla
-$k=0,1$). Stąd $L_{k+1}+L_{k-1}=\varphi^{k-1}(\varphi^2+1)+\psi^{k-1}(\psi^2+1)=
-\sqrt5\,(\varphi^k-\psi^k)=5F_k$, bo $\varphi^2+1=\varphi\sqrt5$,
-$\psi^2+1=-\psi\sqrt5$. Ponadto
+(pierwiastki $t^2=t+1$, $|\psi|<1$). Wzór Bineta $F_k=\frac{\varphi^k-\psi^k}{\sqrt5}$
+(prawa strona spełnia tę samą rekurencję co $F_k$ i~zgadza się dla $k=0,1$) daje
 \[
-\frac{L_k}{F_k}=\sqrt5\,\frac{1+(\psi/\varphi)^k}{1-(\psi/\varphi)^k}
-=\sqrt5\bigl(1+\O(\varphi^{-2k})\bigr),
+F_{k+1}-\varphi F_k=\frac{\psi^k(\varphi-\psi)}{\sqrt5}=\psi^k,
 \]
-więc
-\[
-E[M]=\frac{n+1}{\sqrt5}-\frac15+\O\bigl(n\varphi^{-2n}\bigr)
-=\frac{n}{\sqrt5}+\Bigl(\frac1{\sqrt5}-\frac15\Bigr)+o(1).
-\]
-Stała $\frac1{\sqrt5}-\frac15\approx0{,}247$, więc rzeczywiście
-$E[M]=\frac n{\sqrt5}+\O(1)$. Przykłady: $n=2$: ciągi $(1,1),(2)$, średnio $1$;
-$n=3$: $(1,1,1),(1,2),(2,1)$, średnio $\frac53$ --- oba zgodne ze wzorem.
+więc $\frac{F_{n+2}}{F_{n+1}}=\varphi+\frac{\psi^{n+1}}{F_{n+1}}
+=\varphi+\O(\varphi^{-2n})$ (bo $F_{n+1}=\Theta(\varphi^n)$, $|\psi|=\varphi^{-1}$).
+Wstawiając i~korzystając z~$2\varphi-1=\sqrt5$:
+\begin{align*}
+E[M]&=\frac{(2\varphi-1)(n+1)-1}5+\O\bigl(n\varphi^{-2n}\bigr)\\
+&=\frac{n+1}{\sqrt5}-\frac15+o(1)
+=\frac n{\sqrt5}+\O(1).
+\end{align*}
+Stała to $\frac1{\sqrt5}-\frac15\approx0{,}247$. Przykłady: $n=2$: ciągi
+$(1,1),(2)$, średnio $1$; $n=3$: średnio $\frac53$ --- oba zgodne ze wzorem
+dokładnym.
 
 \emph{Sens:} $\frac1{\sqrt5}\approx0{,}447$, czyli w~typowym ciągu jest
 ok.\ $0{,}447n$ jedynek i~$0{,}276n$ dwójek (bo $m+2j=n$).
 \begin{odpowiedz}
-$G(x,y)=\dfrac1{1-xy-x^2}$ i~
-$E[\#\text{jedynek}]=\dfrac{[x^n]\,\partial_yG(x,1)}{[x^n]\,G(x,1)}
-=\dfrac{(n+1)L_{n+1}-F_{n+1}}{5F_{n+1}}=\dfrac{n}{\sqrt5}+\O(1)$.
+$G(x,y)=\dfrac1{1-xy-x^2}$ i
+\begin{align*}
+E[\#\text{jedynek}]&=\frac{[x^n]\,\partial_yG(x,1)}{[x^n]\,G(x,1)}\\
+&=\frac{2(n+1)F_{n+2}-(n+2)F_{n+1}}{5F_{n+1}}\\
+&=\frac{n}{\sqrt5}+\O(1).
+\end{align*}
 \end{odpowiedz}
 
 \end{document}

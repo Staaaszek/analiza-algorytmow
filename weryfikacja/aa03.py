@@ -219,4 +219,18 @@ for n in [30, 50, 100, 250]:
     En = F(h[n], fib_n(n + 1))
     assert abs(float(En) - ((n + 1) / SQ5 - 1 / 5)) < 1e-9, n
     assert abs(float(En) - n / SQ5) < 1, n
+# rozkład D = x/Q^2 = (2-x)/5 Phi' - 2/5 Phi, Phi = 1/Q = sum F_{n+1} x^n
+Phi = [F(fib[n]) for n in range(N + 1)]
+dPhi = [(n + 1) * Phi[n + 1] for n in range(N)]  # = (n+1) F_{n+2}
+assert all(dPhi[n] == (n + 1) * fib[n + 1] for n in range(N))
+D = [F(2, 5) * dPhi[n] - F(1, 5) * (dPhi[n - 1] if n else 0) - F(2, 5) * Phi[n] for n in range(N)]
+assert D == [F(h[n]) for n in range(N)]
+# (1+2x)^2 + 4(1-x-x^2) = 5
+assert [a + 4 * b for a, b in zip([1, 4, 4], [1, -1, -1])] == [5, 0, 0]
+for n in range(300):
+    assert 5 * h[n] == 2 * (n + 1) * fib[n + 1] - (n + 2) * fib[n], n
+# F_{k+1} - phi F_k = psi^k
+psi = (1 - SQ5) / 2
+for k in range(1, 40):
+    assert abs(fib_n(k + 1) - phi * fib_n(k) - psi**k) < 1e-6
 print("ok  zad9")
